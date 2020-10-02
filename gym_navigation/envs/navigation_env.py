@@ -1,0 +1,331 @@
+import numpy as np
+import math
+import random
+import matplotlib.pyplot as plt
+import gym
+from gym import error, spaces, utils
+from gym.utils import seeding
+
+
+N_ACTIONS = 3
+FORWARD = 0
+YAW_RIGHT = 1
+YAW_LEFT = 2
+
+FORWARD_LINEAR_SHIFT = 0.2  # m
+YAW_LINEAR_SHIFT = 0.04  # m
+YAW_ANGULAR_SHIFT = 0.2  # rad
+
+SHIFT_STANDARD_DEVIATION = 0.02
+SENSOR_STANDARD_DEVIATION = 0.01
+
+WALL_DISTANCE_THRESHOLD = 0.4
+
+MAX_ACTIONS = 500
+
+COLLISION_REWARD = -200
+FORWARD_REWARD = +5
+YAW_REWARD = -0.5
+STEP_REWARD = 0
+
+SCAN_RANGE_MAX = 30.0
+SCAN_RANGE_MIN = 0.2
+N_MEASUREMENTS = 5
+
+TRACK = (
+    ((-10.55, -10.55), (-10.475, 10.475)),
+    ((-10.55, 10.55), (10.475, 10.475)),
+    ((10.55, 10.55), (10.475, -1.375)),
+    ((10.55, 1.45), (-1.375, -1.375)),
+    ((1.45, 1.45), (-1.375, -10.475)),
+    ((1.45, -10.55), (-10.475, -10.475)),
+
+    ((-7.599, -7.599), (-7.202, 7.497)),
+    ((-7.599, 7.35), (7.497, 7.497)),
+    ((7.35, 7.35), (7.497, 1.647)),
+    ((7.35, -1.499), (1.647, 1.647)),
+    ((-1.499, -1.499), (1.647, -7.202)),
+    ((-1.499, -7.599), (-7.202, -7.202))
+)
+
+SPAWNABLE_AREA = (
+    ((-9, -9), (-9, 9)),
+    ((-9, 9), (9, 9)),
+    ((9, 9), (0, 9)),
+    ((0, 9), (0, 0)),
+    ((0, 0), (-9, 0)),
+    ((-9, 0), (-9, -9))
+)
+'''
+TRACK = (
+    ((-1.625, -1.625), (-1.55, 1.55)),
+    ((-1.625, -10.725), (1.55, 1.55)),
+    ((-10.725, -10.725), (1.55, 13.899)),
+    ((-10.725, 7.624), (13.899, 13.899)),
+    ((7.624, 7.624), (13.899, 4.55)),
+    ((7.624, 10.725), (4.55, 4.55)),
+    ((10.725, 10.725), (4.55, -4.55)),
+    ((10.725, 7.624), (-4.55, -4.55)),
+    ((7.624, 7.624), (-4.55, -13.9)),
+    ((7.624, -10.725), (-13.9, -13.9)),
+    ((-10.725, -10.725), (-13.9, -1.55)),
+    ((-10.725, -1.625), (-1.55, -1.55)),
+
+    ((1.409, 1.409), (-4.742, 4.607)),
+    ((1.409, -7.69), (4.607, 4.607)),
+    ((-7.69, -7.69), (4.607, 10.707)),
+    ((-7.69, 4.409), (10.707, 10.707)),
+    ((4.409, 4.409), (10.707, 1.607)),
+    ((4.409, 7.509), (1.607, 1.607)),
+    ((7.509, 7.509), (1.607, -1.492)),
+    ((7.509, 4.409), (-1.492, -1.492)),
+    ((4.409, 4.409), (-1.492, -10.842)),
+    ((4.409, -7.69), (-10.842, -10.842)),
+    ((-7.69, -7.69), (-10.842, -4.742)),
+    ((-7.69, 1.409), (-4.742, -4.742))
+)
+
+SPAWNABLE_AREA = (
+    ((-0.2, -0.2), (-3.2, 3.1)),
+    ((-0.2, -9.2), (3.1, 3.1)),
+    ((-9.2, -9.2), (3.1, 12.4)),
+    ((-9.2, 6.1), (12.4, 12.4)),
+    ((6.1, 6.1), (12.4, 3)),
+    ((6.1, 9.2), (3, 3)),
+    ((9.2, 9.2), (3, -3)),
+    ((9.2, 6.1), (-3, -3)),
+    ((6.1, 6.1), (-3, -12.4)),
+    ((6.1, -9.2), (-12.4, -12.4)),
+    ((-9.2, -9.2), (-12.4, -3.2)),
+    ((-9.2, -0.2), (-3.2, -3.2))
+)
+
+TRACK = (
+    ((-3.065, 3.034), (-10.87, -10.87)),
+    ((3.034, 3.034), (-10.87, -16.72)),
+    ((3.034, 15.385), (-16.72, -16.72)),
+    ((15.385, 15.385), (-16.72, -10.87)),
+    ((15.385, 21.484), (-10.87, -10.87)),
+    ((21.484, 21.484), (-10.87, -4.62)),
+    ((-0.034, 21.484), (16.798, -4.62)),
+    ((-0.034, -21.476), (16.798, -4.62)),
+    ((-21.476, -21.476), (-4.62, -10.87)),
+    ((-21.476, -15.415), (-10.87, -10.87)),
+    ((-15.415, -15.415), (-10.87, -16.72)),
+    ((-15.415, -3.065), (-16.72, -16.72)),
+    ((-3.065, -3.065), (-16.72, -10.87)),
+
+    ((-6.222, 6.127), (-7.772, -7.772)),
+    ((6.127, 6.127), (-7.772, -13.872)),
+    ((6.127, 12.227), (-13.872, -13.872)),
+    ((12.227, 12.227), (-13.872, -7.772)),
+    ((12.227, 18.477), (-7.772, -7.772)),
+    ((0.049, 18.477), (10.75, -7.772)),
+    ((0.049, -18.477), (10.75, -7.772)),
+    ((-18.477, -12.322), (-7.772, -7.772)),
+    ((-12.322, -12.322), (-7.772, -13.872)),
+    ((-12.322, -6.222), (-13.872, -13.872)),
+    ((-6.222, -6.222), (-13.872, -7.772)),
+)
+
+SPAWNABLE_AREA = (
+    ((-4.7, 4.6), (-9.3, -9.3)),
+    ((4.6, 4.6), (-9.3, -15.3)),
+    ((4.6, 13.8), (-15.2, -15.2)),
+    ((13.8, 13.8), (-15.2, -9.3)),
+    ((13.8, 20), (-9.3, -9.3)),
+    ((20, 20), (-9.3, -6.1)),
+    ((20, 0), (-6.1, 13.8)),
+    ((-20, 0), (-6.1, 13.8)),
+    ((-20, -20), (-6.1, -9.3)),
+    ((-20, -13.9), (-9.3, -9.3)),
+    ((-13.9, -13.9), (-9.3, -15.2)),
+    ((-13.9, -4.7), (-15.2, -15.2)),
+    ((-4.7, -4.7), (-15.2, -9.3))
+)
+'''
+
+SCAN_ANGLES = (-math.pi/2, -math.pi/4, 0, math.pi/4, math.pi/2)
+
+
+class NavigationEnv(gym.Env):
+
+    def __init__(self):
+        self.ranges = np.empty((N_MEASUREMENTS,))
+        self.pose = np.empty((3,))
+        self.total_actions = 0
+
+        self.action_space = spaces.Discrete(N_ACTIONS)
+
+        self.observation_space = spaces.Box(low=SCAN_RANGE_MAX, high=SCAN_RANGE_MIN, shape=(
+            N_MEASUREMENTS,), dtype=np.float32)
+
+    def get_point(self, x0, y0, angle, d):
+        if angle == 0:
+            y1 = y0 + d
+            x1 = x0
+        elif abs(angle) == math.pi:
+            y1 = y0 - d
+            x1 = x0
+        else:
+            m = math.tan(math.pi / 2 - angle)
+            if angle < 0:
+                x1 = x0 - math.sqrt(d ** 2 / (m ** 2 + 1))
+            else:
+                x1 = x0 + math.sqrt(d ** 2 / (m ** 2 + 1))
+            y1 = y0 - m * (x0 - x1)
+
+        return x1, y1
+
+    def perform_action(self, action):
+        linear_shift_noise = random.gauss(0, SHIFT_STANDARD_DEVIATION)
+        angular_shift_noise = random.gauss(0, SHIFT_STANDARD_DEVIATION)
+
+        if action == FORWARD:
+            d = FORWARD_LINEAR_SHIFT + linear_shift_noise
+            self.pose[2] += angular_shift_noise
+        elif action == YAW_RIGHT:
+            d = YAW_LINEAR_SHIFT + linear_shift_noise
+            self.pose[2] += YAW_ANGULAR_SHIFT + angular_shift_noise
+        else:
+            d = YAW_LINEAR_SHIFT + linear_shift_noise
+            self.pose[2] -= YAW_ANGULAR_SHIFT + angular_shift_noise
+
+        # yaw must E [-pi,pi]
+        if self.pose[2] < -math.pi:
+            self.pose[2] = 2 * math.pi + self.pose[2]
+        elif self.pose[2] > math.pi:
+            self.pose[2] = self.pose[2] - 2 * math.pi
+
+        self.pose[0], self.pose[1] = self.get_point(
+            self.pose[0], self.pose[1], self.pose[2], d)
+
+    def update_scan(self):
+        self.scan_lines = []
+        self.scan_points = []
+
+        ranges = []
+        angle_list = np.array(SCAN_ANGLES) + self.pose[2]
+        x0 = self.pose[0]
+        y0 = self.pose[1]
+
+        for i in range(len(angle_list)):
+            if angle_list[i] < -math.pi:
+                angle_list[i] = 2 * math.pi + angle_list[i]
+            elif angle_list[i] > math.pi:
+                angle_list[i] = angle_list[i] - 2 * math.pi
+
+        for angle in angle_list:
+            x1, y1 = self.get_point(x0, y0, angle, SCAN_RANGE_MAX)
+            scan_line = ((x0, x1), (y0, y1))
+            self.scan_lines.append(scan_line) 
+
+            min_dist = SCAN_RANGE_MAX
+            min_x = x1
+            min_y = y1
+            for wall in TRACK:
+                x2 = wall[0][0]
+                x3 = wall[0][1]
+                y2 = wall[1][0]
+                y3 = wall[1][1]
+
+                denominator = (x0 - x1)*(y2 - y3) - (y0 - y1)*(x2 - x3)
+                if denominator == 0:
+                    continue
+
+                nominator_x = (x0*y1 - y0*x1)*(x2 - x3) - \
+                    (x0 - x1)*(x2*y3 - y2*x3)
+                nominator_y = (x0*y1 - y0*x1)*(y2 - y3) - \
+                    (y0 - y1)*(x2*y3 - y2*x3)
+
+                x = nominator_x / denominator
+                y = nominator_y / denominator
+
+                not_in_scan_line = (x1 > x0 and (x < x0 or x > x1)) or (x0 > x1 and (x < x1 or x > x0)) or (
+                    y1 > y0 and (y < y0 or y > y1)) or (y0 > y1 and (y < y1 or y > y0))
+                not_in_wall_line = (x3 > x2 and (x < x2 or x > x3)) or (x2 > x3 and (x < x3 or x > x2)) or (
+                    y3 > y2 and (y < y2 or y > y3)) or (y2 > y3 and (y < y3 or y > y2))
+                if not_in_scan_line or not_in_wall_line:
+                    continue
+
+                dist = math.sqrt((x - x0) ** 2 + (y - y0) ** 2)
+                if dist < min_dist:
+                    min_dist = dist
+                    min_x = x
+                    min_y = y
+
+            self.scan_points.append((min_x, min_y))
+            sensor_noise = random.gauss(0, SENSOR_STANDARD_DEVIATION)
+            min_dist += sensor_noise
+            ranges.append(min_dist)
+
+        self.ranges = np.array(ranges)
+
+    def collision_occured(self):
+        for range_ in self.ranges:
+            if range_ < WALL_DISTANCE_THRESHOLD:
+                return True
+
+        return False
+
+    def reset(self):
+        plt.close()
+        plt.figure(figsize=(19.20,10.80))
+        self.total_actions = 0
+
+        area = random.choice(SPAWNABLE_AREA)
+        x = random.uniform(area[0][0], area[0][1])
+        y = random.uniform(area[1][0], area[1][1])
+        yaw = random.uniform(-math.pi, math.pi)
+        self.pose = np.array([x, y, yaw])
+
+        self.update_scan()
+        observation = list(self.ranges)
+
+        return observation
+
+    def step(self, action):
+        if not self.action_space.contains(action):
+            print('Invalid action')
+
+        self.total_actions += 1
+
+        self.perform_action(action)
+
+        self.update_scan()
+        observation = list(self.ranges)
+
+        collision_occured = self.collision_occured()
+
+        done = True if collision_occured or self.total_actions == MAX_ACTIONS else False
+
+        if collision_occured:
+            reward = COLLISION_REWARD
+        elif action == FORWARD:
+            reward = FORWARD_REWARD
+        else:
+            reward = YAW_REWARD
+
+        return observation, reward, done, []
+
+    def render(self):
+        plt.clf()
+        for point in TRACK:
+            plt.plot(point[0], point[1], 'b')
+        
+        for scan_line in self.scan_lines:
+            plt.plot(scan_line[0], scan_line[1], 'y')
+        
+        for scan_point in self.scan_points:
+            plt.plot(scan_point[0], scan_point[1], 'co')
+
+        plt.plot(self.pose[0], self.pose[1], 'ro')
+        plt.xlim((-25, 25))
+        plt.ylim((-25, 25))
+
+        plt.pause(0.05)
+    
+    def close(self):
+        pass
+
+        

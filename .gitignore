@@ -1,0 +1,5 @@
+*.log
+*.npy
+*.pyc
+**/__pycache__
+/gym_navigation.egg-info
