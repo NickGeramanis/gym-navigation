@@ -44,7 +44,7 @@ TRACK = (
 
 class NavigationGoalEnv(gym.Env):
 
-    def __init__(self, goal=(5.0, 8.0)):
+    def __init__(self):
         self.ranges = np.empty((N_MEASUREMENTS,))
         '''
         Pose = (x, y, yaw).
@@ -52,7 +52,9 @@ class NavigationGoalEnv(gym.Env):
         '''
         self.pose = np.empty((3,))
         self.total_actions = 0
-        self.goal = goal
+        self.goal = np.empty((2,))
+        self.goal[0] = random.uniform(-9, 9)
+        self.goal[1] = random.uniform(-9, 9)
         self.distance_from_goal = 0.0
 
         self.scan_lines = np.empty((N_MEASUREMENTS,), dtype=object)

@@ -8,7 +8,7 @@ The goal of this environment is to navigate a robot in different tracks without 
 
 ## NavigationGoal
 
-The goal of this environment is to navigate a robot to reach a goal location while avoiding the obstacles in the track. Initially, the robot is placed at (0, 0). The state-space consists of 5 range measurements the distance and angle from the goal. The action-space consist of 3 action (move_forward, rotate_left, rotate_right). Furthermore, both actions and states have additive white Gaussian noise. The reward function consists of the environment reward, the direction reward, and the transition reward. Moreover, to encourage the robot to reach the target location as fast as possible the robot receives a penalty for every step.  
+The goal of this environment is to navigate a robot to reach a goal location while avoiding the obstacles in the track. Initially, the robot is placed at (0, 0) and the goal at a random location. The state-space consists of 5 range measurements the distance and angle from the goal. The action-space consist of 3 action (move_forward, rotate_left, rotate_right). Furthermore, both actions and states have additive white Gaussian noise. The reward function consists of the environment reward, the direction reward, and the transition reward. Moreover, to encourage the robot to reach the target location as fast as possible the robot receives a penalty for every step.  
 
 
 # Installation & Usage
