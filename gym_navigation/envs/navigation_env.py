@@ -28,11 +28,14 @@ FORWARD_REWARD = +5
 YAW_REWARD = -0.5
 STEP_REWARD = 0
 
+SCAN_ANGLES = (-math.pi/2, -math.pi/4, 0, math.pi/4, math.pi/2)
+
 SCAN_RANGE_MAX = 30.0
 SCAN_RANGE_MIN = 0.2
-N_MEASUREMENTS = 5
+N_MEASUREMENTS = len(SCAN_ANGLES)
 
-TRACK = (
+# track1
+TRACK1 = (
     ((-10.55, -10.55), (-10.475, 10.475)),
     ((-10.55, 10.55), (10.475, 10.475)),
     ((10.55, 10.55), (10.475, -1.375)),
@@ -48,7 +51,7 @@ TRACK = (
     ((-1.499, -7.599), (-7.202, -7.202))
 )
 
-SPAWNABLE_AREA = (
+SPAWNABLE_AREA1 = (
     ((-9, -9), (-9, 9)),
     ((-9, 9), (9, 9)),
     ((9, 9), (0, 9)),
@@ -56,8 +59,9 @@ SPAWNABLE_AREA = (
     ((0, 0), (-9, 0)),
     ((-9, 0), (-9, -9))
 )
-'''
-TRACK = (
+
+# track2
+TRACK2 = (
     ((-1.625, -1.625), (-1.55, 1.55)),
     ((-1.625, -10.725), (1.55, 1.55)),
     ((-10.725, -10.725), (1.55, 13.899)),
@@ -85,7 +89,7 @@ TRACK = (
     ((-7.69, 1.409), (-4.742, -4.742))
 )
 
-SPAWNABLE_AREA = (
+SPAWNABLE_AREA2 = (
     ((-0.2, -0.2), (-3.2, 3.1)),
     ((-0.2, -9.2), (3.1, 3.1)),
     ((-9.2, -9.2), (3.1, 12.4)),
@@ -100,7 +104,8 @@ SPAWNABLE_AREA = (
     ((-9.2, -0.2), (-3.2, -3.2))
 )
 
-TRACK = (
+# track3
+TRACK3 = (
     ((-3.065, 3.034), (-10.87, -10.87)),
     ((3.034, 3.034), (-10.87, -16.72)),
     ((3.034, 15.385), (-16.72, -16.72)),
@@ -128,7 +133,7 @@ TRACK = (
     ((-6.222, -6.222), (-13.872, -7.772)),
 )
 
-SPAWNABLE_AREA = (
+SPAWNABLE_AREA3 = (
     ((-4.7, 4.6), (-9.3, -9.3)),
     ((4.6, 4.6), (-9.3, -15.3)),
     ((4.6, 13.8), (-15.2, -15.2)),
@@ -143,24 +148,46 @@ SPAWNABLE_AREA = (
     ((-13.9, -4.7), (-15.2, -15.2)),
     ((-4.7, -4.7), (-15.2, -9.3))
 )
-'''
-
-SCAN_ANGLES = (-math.pi/2, -math.pi/4, 0, math.pi/4, math.pi/2)
 
 
 class NavigationEnv(gym.Env):
 
-    def __init__(self):
+    def __init__(self, track_id=1):
         self.ranges = np.empty((N_MEASUREMENTS,))
+        '''
+        Pose = (x, y, yaw).
+        Note that yaw is measured from the y axis and E [-pi, pi].
+        '''
         self.pose = np.empty((3,))
         self.total_actions = 0
 
+        self.scan_lines = np.empty((N_MEASUREMENTS,), dtype=object)
+        self.scan_points = np.empty((N_MEASUREMENTS,), dtype=object)
+        self.track_id = track_id
+
+        assert track_id == 1 or track_id == 2 or track_id == 3, '{}, ({}) invalid'.format(
+            track_id, type(track_id))
+
+        if track_id == 1:
+            self.track = TRACK1
+            self.spawnable_area = SPAWNABLE_AREA1
+        elif track_id == 2:
+            self.track = TRACK2
+            self.spawnable_area = SPAWNABLE_AREA2
+        elif track_id == 3:
+            self.track = TRACK3
+            self.spawnable_area = SPAWNABLE_AREA3
+
         self.action_space = spaces.Discrete(N_ACTIONS)
 
-        self.observation_space = spaces.Box(low=SCAN_RANGE_MAX, high=SCAN_RANGE_MIN, shape=(
-            N_MEASUREMENTS,), dtype=np.float32)
+        self.observation_space = spaces.Box(
+            low=SCAN_RANGE_MAX, high=SCAN_RANGE_MIN, shape=(N_MEASUREMENTS,), dtype=np.float32)
 
     def get_point(self, x0, y0, angle, d):
+        '''
+        Get the coordinates of a point that is at a distance d
+        from the given position (x,y) and orientation (yaw).
+        '''
         if angle == 0:
             y1 = y0 + d
             x1 = x0
@@ -178,6 +205,10 @@ class NavigationEnv(gym.Env):
         return x1, y1
 
     def perform_action(self, action):
+        '''
+        Change the pose of the robot depending on the given action.
+        In each action we add white Gaussian noise: y = y_hat + w.
+        '''
         linear_shift_noise = random.gauss(0, SHIFT_STANDARD_DEVIATION)
         angular_shift_noise = random.gauss(0, SHIFT_STANDARD_DEVIATION)
 
@@ -191,7 +222,7 @@ class NavigationEnv(gym.Env):
             d = YAW_LINEAR_SHIFT + linear_shift_noise
             self.pose[2] -= YAW_ANGULAR_SHIFT + angular_shift_noise
 
-        # yaw must E [-pi,pi]
+        # Yaw must E [-pi,pi].
         if self.pose[2] < -math.pi:
             self.pose[2] = 2 * math.pi + self.pose[2]
         elif self.pose[2] > math.pi:
@@ -201,29 +232,29 @@ class NavigationEnv(gym.Env):
             self.pose[0], self.pose[1], self.pose[2], d)
 
     def update_scan(self):
-        self.scan_lines = []
-        self.scan_points = []
-
-        ranges = []
+        '''
+        Get the range distance from each measurement angle.
+        '''
         angle_list = np.array(SCAN_ANGLES) + self.pose[2]
         x0 = self.pose[0]
         y0 = self.pose[1]
 
+        # Measurement angles must E [-pi,pi].
         for i in range(len(angle_list)):
             if angle_list[i] < -math.pi:
                 angle_list[i] = 2 * math.pi + angle_list[i]
             elif angle_list[i] > math.pi:
                 angle_list[i] = angle_list[i] - 2 * math.pi
 
-        for angle in angle_list:
-            x1, y1 = self.get_point(x0, y0, angle, SCAN_RANGE_MAX)
+        for i in range(N_MEASUREMENTS):
+            x1, y1 = self.get_point(x0, y0, angle_list[i], SCAN_RANGE_MAX)
             scan_line = ((x0, x1), (y0, y1))
-            self.scan_lines.append(scan_line) 
+            self.scan_lines[i] = scan_line
 
             min_dist = SCAN_RANGE_MAX
             min_x = x1
             min_y = y1
-            for wall in TRACK:
+            for wall in self.track:
                 x2 = wall[0][0]
                 x3 = wall[0][1]
                 y2 = wall[1][0]
@@ -254,12 +285,10 @@ class NavigationEnv(gym.Env):
                     min_x = x
                     min_y = y
 
-            self.scan_points.append((min_x, min_y))
+            self.scan_points[i] = (min_x, min_y)
             sensor_noise = random.gauss(0, SENSOR_STANDARD_DEVIATION)
             min_dist += sensor_noise
-            ranges.append(min_dist)
-
-        self.ranges = np.array(ranges)
+            self.ranges[i] = min_dist
 
     def collision_occured(self):
         for range_ in self.ranges:
@@ -270,14 +299,15 @@ class NavigationEnv(gym.Env):
 
     def reset(self):
         plt.close()
-        plt.figure(figsize=(19.20,10.80))
+        plt.figure(figsize=(6.40, 4.80))
+
         self.total_actions = 0
 
-        area = random.choice(SPAWNABLE_AREA)
-        x = random.uniform(area[0][0], area[0][1])
-        y = random.uniform(area[1][0], area[1][1])
-        yaw = random.uniform(-math.pi, math.pi)
-        self.pose = np.array([x, y, yaw])
+        # Random initial pose.
+        area = random.choice(self.spawnable_area)
+        self.pose[0] = random.uniform(area[0][0], area[0][1])
+        self.pose[1] = random.uniform(area[1][0], area[1][1])
+        self.pose[2] = random.uniform(-math.pi, math.pi)
 
         self.update_scan()
         observation = list(self.ranges)
@@ -285,8 +315,8 @@ class NavigationEnv(gym.Env):
         return observation
 
     def step(self, action):
-        if not self.action_space.contains(action):
-            print('Invalid action')
+        assert self.action_space.contains(
+            action), '{} ({}) invalid'.format(action, type(action))
 
         self.total_actions += 1
 
@@ -297,6 +327,9 @@ class NavigationEnv(gym.Env):
 
         collision_occured = self.collision_occured()
 
+        '''
+        Have a maximum number of action to avoid infinite long episodes.
+        '''
         done = True if collision_occured or self.total_actions == MAX_ACTIONS else False
 
         if collision_occured:
@@ -310,22 +343,30 @@ class NavigationEnv(gym.Env):
 
     def render(self):
         plt.clf()
-        for point in TRACK:
+        for point in self.track:
             plt.plot(point[0], point[1], 'b')
-        
+
         for scan_line in self.scan_lines:
             plt.plot(scan_line[0], scan_line[1], 'y')
-        
+
         for scan_point in self.scan_points:
             plt.plot(scan_point[0], scan_point[1], 'co')
 
+        for point in self.spawnable_area:
+            plt.plot(point[0], point[1], 'g')
+
         plt.plot(self.pose[0], self.pose[1], 'ro')
-        plt.xlim((-25, 25))
-        plt.ylim((-25, 25))
+        if self.track_id == 1:
+            plt.xlim((-10, 10))
+            plt.ylim((-10, 10))
+        elif self.track_id == 2:
+            plt.xlim((-15, 15))
+            plt.ylim((-15, 15))
+        else:
+            plt.xlim((-25, 25))
+            plt.ylim((-25, 25))
 
-        plt.pause(0.05)
-    
+        plt.pause(0.01)
+
     def close(self):
-        pass
-
-        
+        plt.close()

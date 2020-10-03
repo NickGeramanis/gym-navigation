@@ -18,82 +18,68 @@ YAW_ANGULAR_SHIFT = 0.2  # rad
 SHIFT_STANDARD_DEVIATION = 0.02
 SENSOR_STANDARD_DEVIATION = 0.01
 
-WALL_DISTANCE_THRESHOLD = 0.4 # m
-GOAL_DISTANCE_THRESHOLD = 0.4 # m
+WALL_DISTANCE_THRESHOLD = 0.4  # m
+GOAL_DISTANCE_THRESHOLD = 0.4  # m
 
 STEP_REWARD = -0.2
 DIRECTION_REWARD = 1
 TRANSITION_REWARD_FACTOR = 10
 
-SCAN_RANGE_MAX = 30.0
-SCAN_RANGE_MIN = 0.2
-MAXIMUM_GOAL_DISTANCE = 70
-FIRST_PERSPECTIVE_DIRECTION = 2
-N_MEASUREMENTS = 5
-N_OBSERVATIONS = N_MEASUREMENTS + 2
-
-MAZE = (
-    ((0, 0), (0, 20)),
-    ((0, 20), (20, 20)),
-    ((20, 20), (20, 0)),
-    ((20, 0), (0, 0)),
-
-    ((6, 6), (6, 7)),
-    ((6, 7), (7, 7)),
-    ((7, 7), (7, 6)),
-    ((7, 6), (6, 6)),
-
-    ((3, 3), (3, 4)),
-    ((3, 4), (4, 4)),
-    ((4, 4), (4, 3)),
-    ((4, 3), (3, 3)),
-
-    ((14, 14), (14,15)),
-    ((14, 15), (15, 15)),
-    ((15, 15), (15, 14)),
-    ((15, 14), (14, 14)),
-
-    ((16, 16), (16, 17)),
-    ((16, 17), (17, 17)),
-    ((17, 17), (17, 16)),
-    ((17, 16), (16, 16))
-    
-)
-
 SCAN_ANGLES = (-math.pi/2, -math.pi/4, 0, math.pi/4, math.pi/2)
 
+SCAN_RANGE_MAX = 30.0
+SCAN_RANGE_MIN = 0.2
+N_MEASUREMENTS = len(SCAN_ANGLES)
+MAXIMUM_GOAL_DISTANCE = 30
+FIRST_PERSPECTIVE_DIRECTION = 2
+N_OBSERVATIONS = N_MEASUREMENTS + 2
 
-class NavigationGoalEnv:
+TRACK = (
+    ((-10, -10), (-10, 10)),
+    ((-10, 10), (10, 10)),
+    ((10, 10), (10, -10)),
+    ((10, -10), (-10, -10))
+)
 
-    def __init__(self, goal):
+
+class NavigationGoalEnv(gym.Env):
+
+    def __init__(self, goal=(5.0, 8.0)):
         self.ranges = np.empty((N_MEASUREMENTS,))
+        '''
+        Pose = (x, y, yaw).
+        Note that yaw is measured from the y axis and E [-pi, pi].
+        '''
         self.pose = np.empty((3,))
         self.total_actions = 0
         self.goal = goal
         self.distance_from_goal = 0.0
 
-        self.action_space = Discrete(N_ACTIONS)
+        self.scan_lines = np.empty((N_MEASUREMENTS,), dtype=object)
+        self.scan_points = np.empty((N_MEASUREMENTS,), dtype=object)
 
-        # ranges
+        self.action_space = spaces.Discrete(N_ACTIONS)
+
         high = N_MEASUREMENTS * [SCAN_RANGE_MAX]
-        # distance from goal
         high.append(MAXIMUM_GOAL_DISTANCE)
-        # angle from goal
         high.append(math.pi)
         high = np.array(high, dtype=np.float32)
+        print(high)
 
-        # ranges
         low = N_MEASUREMENTS * [SCAN_RANGE_MIN]
-        # distance from goal
         low.append(0)
-        # angle from goal
         low.append(-math.pi)
         low = np.array(low, dtype=np.float32)
+        print(low)
 
-        self.observation_space = Box(
-            low=low, high=high, shape=(N_OBSERVATIONS,), dtype=np.float32)
+        self.observation_space = spaces.Box(
+            low=low, high=high, dtype=np.float32)
 
     def get_point(self, x0, y0, angle, d):
+        '''
+        Get the coordinates of a point that is at a distance d
+        from the given position (x,y) and orientation (yaw).
+        '''
         if angle == 0:
             y1 = y0 + d
             x1 = x0
@@ -111,6 +97,10 @@ class NavigationGoalEnv:
         return x1, y1
 
     def perform_action(self, action):
+        '''
+        Change the pose of the robot depending on the given action.
+        In each action we add white Gaussian noise: y = y_hat + w.
+        '''
         linear_shift_noise = random.gauss(0, SHIFT_STANDARD_DEVIATION)
         angular_shift_noise = random.gauss(0, SHIFT_STANDARD_DEVIATION)
 
@@ -134,29 +124,29 @@ class NavigationGoalEnv:
             self.pose[0], self.pose[1], self.pose[2], d)
 
     def update_scan(self):
-        self.scan_lines = []
-        self.scan_points = []
-
-        ranges = []
+        '''
+        Get the range distance from each measurement angle.
+        '''
         angle_list = np.array(SCAN_ANGLES) + self.pose[2]
         x0 = self.pose[0]
         y0 = self.pose[1]
 
+        # Measurement angles must E [-pi,pi].
         for i in range(len(angle_list)):
             if angle_list[i] < -math.pi:
                 angle_list[i] = 2 * math.pi + angle_list[i]
             elif angle_list[i] > math.pi:
                 angle_list[i] = angle_list[i] - 2 * math.pi
 
-        for angle in angle_list:
-            x1, y1 = self.get_point(x0, y0, angle, SCAN_RANGE_MAX)
+        for i in range(N_MEASUREMENTS):
+            x1, y1 = self.get_point(x0, y0, angle_list[i], SCAN_RANGE_MAX)
             scan_line = ((x0, x1), (y0, y1))
-            self.scan_lines.append(scan_line) 
+            self.scan_lines[i] = scan_line
 
             min_dist = SCAN_RANGE_MAX
             min_x = x1
             min_y = y1
-            for wall in MAZE:
+            for wall in TRACK:
                 x2 = wall[0][0]
                 x3 = wall[0][1]
                 y2 = wall[1][0]
@@ -187,12 +177,10 @@ class NavigationGoalEnv:
                     min_x = x
                     min_y = y
 
-            self.scan_points.append((min_x, min_y))
+            self.scan_points[i] = (min_x, min_y)
             sensor_noise = random.gauss(0, SENSOR_STANDARD_DEVIATION)
             min_dist += sensor_noise
-            ranges.append(min_dist)
-
-        self.ranges = np.array(ranges)
+            self.ranges[i] = min_dist
 
     def collision_occured(self):
         for range_ in self.ranges:
@@ -203,13 +191,12 @@ class NavigationGoalEnv:
 
     def reset(self):
         plt.close()
-        plt.figure(figsize=(19.20,10.80))
+        plt.figure(figsize=(6.40, 4.80))
         self.total_actions = 0
 
-        x = 10.0
-        y = 10.0
-        yaw = random.uniform(-math.pi, math.pi)
-        self.pose = np.array([x, y, yaw])
+        self.pose[0] = 0.0
+        self.pose[1] = 0.0
+        self.pose[2] = random.uniform(-math.pi, math.pi)
 
         self.update_scan()
 
@@ -233,8 +220,8 @@ class NavigationGoalEnv:
         return observation
 
     def step(self, action):
-        if not self.action_space.contains(action):
-            print('Invalid action')
+        assert self.action_space.contains(
+            action), '{} ({}) invalid'.format(action, type(action))
 
         self.perform_action(action)
 
@@ -257,23 +244,24 @@ class NavigationGoalEnv:
 
         goal_reached = distance_from_goal < GOAL_DISTANCE_THRESHOLD
 
+        '''
         if goal_reached:
             print('GOAL REACHED')
-
+        '''
         done = goal_reached or self.collision_occured()
 
         environment_reward = np.sum(-100 * np.exp(-3 * np.array(self.ranges)))
 
         transition_reward = TRANSITION_REWARD_FACTOR * \
             (self.distance_from_goal - distance_from_goal)
-        '''
+
         direction_reward = DIRECTION_REWARD * \
             int(np.argmax(self.ranges) == FIRST_PERSPECTIVE_DIRECTION)
+
+        reward = STEP_REWARD + environment_reward + transition_reward + direction_reward
         '''
-        reward = STEP_REWARD + environment_reward + transition_reward
-        '''
-        print('rew {}, step {}, env {}, trans {}'.format(
-            reward, STEP_REWARD, environment_reward, transition_reward))
+        print('r={}|step={}|env={}|trans={}|dir={}'.format(
+            reward, STEP_REWARD, environment_reward, transition_reward, direction_reward))
         '''
         self.distance_from_goal = distance_from_goal
 
@@ -281,23 +269,21 @@ class NavigationGoalEnv:
 
     def render(self):
         plt.clf()
-        for point in MAZE:
+        for point in TRACK:
             plt.plot(point[0], point[1], 'b')
-        
+
         for scan_line in self.scan_lines:
             plt.plot(scan_line[0], scan_line[1], 'y')
-        
+
         for scan_point in self.scan_points:
             plt.plot(scan_point[0], scan_point[1], 'co')
 
         plt.plot(self.pose[0], self.pose[1], 'ro')
         plt.plot(self.goal[0], self.goal[1], 'go')
-        plt.xlim((-1, 21))
-        plt.ylim((-1, 21))
+        plt.xlim((-11, 11))
+        plt.ylim((-11, 11))
 
         plt.pause(0.05)
-    
-    def close(self):
-        pass
 
-        
+    def close(self):
+        plt.close()
