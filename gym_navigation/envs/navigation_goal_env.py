@@ -66,13 +66,11 @@ class NavigationGoalEnv(gym.Env):
         high.append(MAXIMUM_GOAL_DISTANCE)
         high.append(math.pi)
         high = np.array(high, dtype=np.float32)
-        print(high)
 
         low = N_MEASUREMENTS * [SCAN_RANGE_MIN]
         low.append(0)
         low.append(-math.pi)
         low = np.array(low, dtype=np.float32)
-        print(low)
 
         self.observation_space = spaces.Box(
             low=low, high=high, dtype=np.float32)

@@ -28,7 +28,9 @@ FORWARD_REWARD = +5
 YAW_REWARD = -0.5
 STEP_REWARD = 0
 
-SCAN_ANGLES = (-math.pi/2, -math.pi/4, 0, math.pi/4, math.pi/2)
+#SCAN_ANGLES = (-math.pi/2, -math.pi/4, 0, math.pi/4, math.pi/2)
+SCAN_ANGLES = (-math.pi/4, 0, math.pi/4)
+#SCAN_ANGLES = (-math.pi/2, 0, math.pi/2)
 
 SCAN_RANGE_MAX = 30.0
 SCAN_RANGE_MIN = 0.2
@@ -140,8 +142,8 @@ SPAWNABLE_AREA3 = (
     ((13.8, 13.8), (-15.2, -9.3)),
     ((13.8, 20), (-9.3, -9.3)),
     ((20, 20), (-9.3, -6.1)),
-    ((20, 0), (-6.1, 13.8)),
-    ((-20, 0), (-6.1, 13.8)),
+    #((20, 0), (-6.1, 13.8)),
+    #((-20, 0), (-6.1, 13.8)),
     ((-20, -20), (-6.1, -9.3)),
     ((-20, -13.9), (-9.3, -9.3)),
     ((-13.9, -13.9), (-9.3, -15.2)),
@@ -352,19 +354,16 @@ class NavigationEnv(gym.Env):
         for scan_point in self.scan_points:
             plt.plot(scan_point[0], scan_point[1], 'co')
 
-        for point in self.spawnable_area:
-            plt.plot(point[0], point[1], 'g')
-
         plt.plot(self.pose[0], self.pose[1], 'ro')
         if self.track_id == 1:
-            plt.xlim((-10, 10))
-            plt.ylim((-10, 10))
+            lim = 12
         elif self.track_id == 2:
-            plt.xlim((-15, 15))
-            plt.ylim((-15, 15))
+            lim = 15
         else:
-            plt.xlim((-25, 25))
-            plt.ylim((-25, 25))
+            lim = 23
+
+        plt.xlim((-lim, lim))
+        plt.ylim((-lim, lim))
 
         plt.pause(0.01)
 
