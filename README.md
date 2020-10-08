@@ -4,11 +4,11 @@ The Navigation environment is a single-agent domain featuring discrete action-sp
 
 ## Navigation
 
-The goal of this environment is to navigate a robot in different tracks without crashing into the walls. Currently, there are 3 available tracks (use track_id parameter). Initially, the robot is placed randomly into the track but at a safe distance from the walls. The state-space consists of 5 range measurements. The action-space consist of 3 action (move_forward, rotate_left, rotate_right). Furthermore, both actions and states have additive white Gaussian noise. The robot is rewarded +5 for moving forward and -0.5 for rotating. If the robot crashes into the wall it is penalized with -200.
+The goal of this environment is to navigate a robot in a track without crashing into the walls. Initially, the robot is placed randomly into the track but at a safe distance from the walls. The state-space consists of 5 (or 3) range measurements. The action-space consist of 3 action (move_forward, rotate_left, rotate_right). Furthermore, both actions and states have additive white Gaussian noise. The robot is rewarded +5 for moving forward and -0.5 for rotating. If the robot crashes into the wall it is penalized with -200.
 
 ## NavigationGoal
 
-The goal of this environment is to navigate a robot to reach a goal location while avoiding the obstacles in the track. Initially, the robot is placed at (0, 0) and the goal at a random location. The state-space consists of 5 range measurements the distance and angle from the goal. The action-space consist of 3 action (move_forward, rotate_left, rotate_right). Furthermore, both actions and states have additive white Gaussian noise. The reward function consists of the environment reward, the direction reward, and the transition reward. Moreover, to encourage the robot to reach the target location as fast as possible the robot receives a penalty for every step.  
+The goal of this environment is to navigate a robot to reach a goal location while avoiding the obstacles in the track. Initially, the robot is placed at (0, 0). Both the goal and the obstacles change location in every episode. The state-space consists of 5 (or 3) range measurements and the distance and angle from the goal. The action-space consist of 3 action (move_forward, rotate_left, rotate_right). Furthermore, both actions and states have additive white Gaussian noise. The robot is rewarded +200 for reaching the goal and -200 for crashing. Furthermore, if the distance from the robot to its target position decreases after a time step, the robot is rewarded proportional to the reduced distance.
 
 
 # Installation & Usage

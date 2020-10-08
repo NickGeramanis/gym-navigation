@@ -21,18 +21,21 @@ SENSOR_STANDARD_DEVIATION = 0.01
 WALL_DISTANCE_THRESHOLD = 0.4  # m
 GOAL_DISTANCE_THRESHOLD = 0.4  # m
 
-STEP_REWARD = -0.2
-DIRECTION_REWARD = 1
 TRANSITION_REWARD_FACTOR = 10
+GOAL_REWARD = 200
+COLLISION_REWARD = -200
 
-SCAN_ANGLES = (-math.pi/2, -math.pi/4, 0, math.pi/4, math.pi/2)
+#SCAN_ANGLES = (-math.pi/2, -math.pi/4, 0, math.pi/4, math.pi/2)
+SCAN_ANGLES = (-math.pi/4, 0, math.pi/4)
+#SCAN_ANGLES = (-math.pi/2, 0, math.pi/2)
 
 SCAN_RANGE_MAX = 30.0
 SCAN_RANGE_MIN = 0.2
 N_MEASUREMENTS = len(SCAN_ANGLES)
 MAXIMUM_GOAL_DISTANCE = 30
-FIRST_PERSPECTIVE_DIRECTION = 2
 N_OBSERVATIONS = N_MEASUREMENTS + 2
+N_OBSTACLES = 10
+OBSTACLES_LENGTH = 0.5
 
 TRACK = (
     ((-10, -10), (-10, 10)),
@@ -51,10 +54,9 @@ class NavigationGoalEnv(gym.Env):
         Note that yaw is measured from the y axis and E [-pi, pi].
         '''
         self.pose = np.empty((3,))
-        self.total_actions = 0
         self.goal = np.empty((2,))
-        self.goal[0] = random.uniform(-9, 9)
-        self.goal[1] = random.uniform(-9, 9)
+        self.obstacles = np.empty((N_OBSTACLES, 2))
+        self.total_actions = 0
         self.distance_from_goal = 0.0
 
         self.scan_lines = np.empty((N_MEASUREMENTS,), dtype=object)
@@ -74,6 +76,26 @@ class NavigationGoalEnv(gym.Env):
 
         self.observation_space = spaces.Box(
             low=low, high=high, dtype=np.float32)
+
+    def init_obstacles(self):
+        pass
+
+    def init_goal(self):
+        while True:
+            goal_x = random.uniform(-9, 9)
+            goal_y = random.uniform(-9, 9)
+            distance_from_pose = math.sqrt(
+                (goal_x - self.pose[0]) ** 2 + (goal_x - self.pose[1]) ** 2)
+            if distance_from_pose > 1:
+                break
+
+        self.goal[0] = goal_x
+        self.goal[1] = goal_y
+
+    def init_pose(self):
+        self.pose[0] = 0.0
+        self.pose[1] = 0.0
+        self.pose[2] = random.uniform(-math.pi, math.pi)
 
     def get_point(self, x0, y0, angle, d):
         '''
@@ -194,14 +216,14 @@ class NavigationGoalEnv(gym.Env):
         plt.figure(figsize=(6.40, 4.80))
         self.total_actions = 0
 
-        self.pose[0] = 0.0
-        self.pose[1] = 0.0
-        self.pose[2] = random.uniform(-math.pi, math.pi)
+        self.init_pose()
+        self.init_goal()
+        self.init_obstacles()
 
         self.update_scan()
 
-        uav_position = np.array([self.pose[0], self.pose[1]])
-        distance_from_goal = np.linalg.norm(uav_position - self.goal)
+        position = np.array([self.pose[0], self.pose[1]])
+        distance_from_goal = np.linalg.norm(position - self.goal)
 
         goal_angle = math.atan2(
             self.goal[1] - self.pose[1], self.goal[0] - self.pose[0])
@@ -227,8 +249,8 @@ class NavigationGoalEnv(gym.Env):
 
         self.update_scan()
 
-        uav_position = np.array([self.pose[0], self.pose[1]])
-        distance_from_goal = np.linalg.norm(uav_position - self.goal)
+        position = np.array([self.pose[0], self.pose[1]])
+        distance_from_goal = np.linalg.norm(position - self.goal)
 
         goal_angle = math.atan2(
             self.goal[1] - self.pose[1], self.goal[0] - self.pose[0])
@@ -242,27 +264,17 @@ class NavigationGoalEnv(gym.Env):
         observation.append(distance_from_goal)
         observation.append(angle_from_goal)
 
-        goal_reached = distance_from_goal < GOAL_DISTANCE_THRESHOLD
+        if self.collision_occured():
+            reward = COLLISION_REWARD
+            done = True
+        elif distance_from_goal < GOAL_DISTANCE_THRESHOLD:
+            reward = GOAL_REWARD
+            done = True
+        else:
+            reward = TRANSITION_REWARD_FACTOR * \
+                (self.distance_from_goal - distance_from_goal)
+            done = False
 
-        '''
-        if goal_reached:
-            print('GOAL REACHED')
-        '''
-        done = goal_reached or self.collision_occured()
-
-        environment_reward = np.sum(-100 * np.exp(-3 * np.array(self.ranges)))
-
-        transition_reward = TRANSITION_REWARD_FACTOR * \
-            (self.distance_from_goal - distance_from_goal)
-
-        direction_reward = DIRECTION_REWARD * \
-            int(np.argmax(self.ranges) == FIRST_PERSPECTIVE_DIRECTION)
-
-        reward = STEP_REWARD + environment_reward + transition_reward + direction_reward
-        '''
-        print('r={}|step={}|env={}|trans={}|dir={}'.format(
-            reward, STEP_REWARD, environment_reward, transition_reward, direction_reward))
-        '''
         self.distance_from_goal = distance_from_goal
 
         return observation, reward, done, []
@@ -280,8 +292,8 @@ class NavigationGoalEnv(gym.Env):
 
         plt.plot(self.pose[0], self.pose[1], 'ro')
         plt.plot(self.goal[0], self.goal[1], 'go')
-        plt.xlim((-11, 11))
-        plt.ylim((-11, 11))
+        plt.xlim((-12, 12))
+        plt.ylim((-12, 12))
 
         plt.pause(0.05)
 
