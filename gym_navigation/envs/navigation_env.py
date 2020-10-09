@@ -152,7 +152,7 @@ class NavigationEnv(gym.Env):
             min_dist = SCAN_RANGE_MAX
             min_x = x1
             min_y = y1
-            for wall in self.track:
+            for wall in TRACK:
                 x2 = wall[0][0]
                 x3 = wall[0][1]
                 y2 = wall[1][0]
