@@ -67,8 +67,8 @@ class NavigationEnv(gym.Env):
     def __init__(self):
         self.ranges = np.empty((N_MEASUREMENTS,))
         '''
-        Pose = (x, y, yaw).
-        Note that yaw is measured from the y axis and E [-pi, pi]!
+        Pose = (x, y, yaw)
+        Note that yaw is measured from the y axis and E [-pi, pi].
         '''
         self.pose = np.empty((3,))
         self.total_actions = 0
