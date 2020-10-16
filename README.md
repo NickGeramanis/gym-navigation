@@ -8,7 +8,7 @@ The goal of this environment is to navigate a robot in a track without crashing 
 
 ## NavigationGoal
 
-The goal of this environment is to navigate a robot to reach a goal location while avoiding the obstacles in the track. Initially, the robot is placed at (0, 0). Both the goal and the obstacles change location in every episode. The state-space consists of 5 (or 3) range measurements and the distance and angle from the goal. The action-space consist of 3 action (move_forward, rotate_left, rotate_right). Furthermore, both actions and states have additive white Gaussian noise. The robot is rewarded +200 for reaching the goal and -200 for crashing. Furthermore, if the distance from the robot to its target position decreases after a time step, the robot is rewarded proportional to the reduced distance.
+The goal of this environment is to navigate a robot to reach a goal location while avoiding the obstacles in the track. Initially, the robot is placed at (0, 0). Both the goal and the obstacles change location in every episode. The state-space consists of 5 (or 3) range measurements and the distance and angle from the goal. The action-space consist of 3 action (move_forward, rotate_left, rotate_right). Furthermore, both actions and states have additive white Gaussian noise. The robot is rewarded +200 for reaching the goal and -200 for crashing. Moreover, if the distance from the robot to its target position decreases after a time step, the robot is rewarded proportional to the reduced distance.
 
 
 # Installation & Usage
@@ -16,7 +16,7 @@ The goal of this environment is to navigate a robot to reach a goal location whi
 Install the package with:
 
 ```bash
-pip install -e gym-navigation
+pip3 install -e gym-navigation
 ```
 
 You can create an instance of the environment with

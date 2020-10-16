@@ -20,6 +20,7 @@ SENSOR_STANDARD_DEVIATION = 0.01
 
 WALL_DISTANCE_THRESHOLD = 0.4  # m
 GOAL_DISTANCE_THRESHOLD = 0.4  # m
+MINIMUM_DISTANCE = 1  # m
 
 TRANSITION_REWARD_FACTOR = 10
 GOAL_REWARD = 200
@@ -78,7 +79,22 @@ class NavigationGoalEnv(gym.Env):
             low=low, high=high, dtype=np.float32)
 
     def init_obstacles(self):
-        pass
+        for obstacle_i in range(N_OBSTACLES):
+            while True:
+                obstacle_x = random.uniform(-9, 9)
+                obstacle_y = random.uniform(-9, 9)
+
+                distance_from_pose = math.sqrt(
+                    (obstacle_x - self.pose[0]) ** 2 + (obstacle_y - self.pose[1]) ** 2)
+
+                distance_from_goal = math.sqrt(
+                    (obstacle_x - self.goal[0]) ** 2 + (obstacle_y - self.goal[1]) ** 2)
+
+                if distance_from_pose > MINIMUM_DISTANCE and distance_from_goal > MINIMUM_DISTANCE:
+                    break
+
+            self.obstacles[obstacle_i][0] = obstacle_x
+            self.obstacles[obstacle_i][1] = obstacle_y
 
     def init_goal(self):
         while True:
@@ -86,7 +102,7 @@ class NavigationGoalEnv(gym.Env):
             goal_y = random.uniform(-9, 9)
             distance_from_pose = math.sqrt(
                 (goal_x - self.pose[0]) ** 2 + (goal_x - self.pose[1]) ** 2)
-            if distance_from_pose > 1:
+            if distance_from_pose > MINIMUM_DISTANCE:
                 break
 
         self.goal[0] = goal_x
@@ -146,9 +162,7 @@ class NavigationGoalEnv(gym.Env):
             self.pose[0], self.pose[1], self.pose[2], d)
 
     def update_scan(self):
-        '''
-        Get the range distance from each measurement angle.
-        '''
+        # Get the range distance from each measurement angle.
         angle_list = np.array(SCAN_ANGLES) + self.pose[2]
         x0 = self.pose[0]
         y0 = self.pose[1]
@@ -204,7 +218,7 @@ class NavigationGoalEnv(gym.Env):
             min_dist += sensor_noise
             self.ranges[i] = min_dist
 
-    def collision_occured(self):
+    def collision_occurred(self):
         for range_ in self.ranges:
             if range_ < WALL_DISTANCE_THRESHOLD:
                 return True
@@ -264,7 +278,7 @@ class NavigationGoalEnv(gym.Env):
         observation.append(distance_from_goal)
         observation.append(angle_from_goal)
 
-        if self.collision_occured():
+        if self.collision_occurred():
             reward = COLLISION_REWARD
             done = True
         elif distance_from_goal < GOAL_DISTANCE_THRESHOLD:

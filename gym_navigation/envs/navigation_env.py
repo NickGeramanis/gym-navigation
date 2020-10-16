@@ -43,7 +43,7 @@ TRACK = (
     ((10, 1.5), (-1.5, -1.5)),
     ((1.5, 1.5), (-1.5, -10)),
     ((1.5, -10), (-10, -10)),
-
+    
     ((-7, -7), (-7, 7)),
     ((-7, 7), (7, 7)),
     ((7, 7), (7, 1.5)),
@@ -130,9 +130,7 @@ class NavigationEnv(gym.Env):
             self.pose[0], self.pose[1], self.pose[2], d)
 
     def update_scan(self):
-        '''
-        Get the range distance from each measurement angle.
-        '''
+        # Get the range distance from each measurement angle.
         angle_list = np.array(SCAN_ANGLES) + self.pose[2]
         x0 = self.pose[0]
         y0 = self.pose[1]
@@ -188,7 +186,7 @@ class NavigationEnv(gym.Env):
             min_dist += sensor_noise
             self.ranges[i] = min_dist
 
-    def collision_occured(self):
+    def collision_occurred(self):
         for range_ in self.ranges:
             if range_ < WALL_DISTANCE_THRESHOLD:
                 return True
@@ -223,14 +221,13 @@ class NavigationEnv(gym.Env):
         self.update_scan()
         observation = list(self.ranges)
 
-        collision_occured = self.collision_occured()
+        collision_occurred = self.collision_occurred()
 
-        '''
-        Have a maximum number of action to avoid infinite long episodes.
-        '''
-        done = True if collision_occured or self.total_actions == MAX_ACTIONS else False
+        
+        # Have a maximum number of action to avoid infinite long episodes.
+        done = True if collision_occurred or self.total_actions == MAX_ACTIONS else False
 
-        if collision_occured:
+        if collision_occurred:
             reward = COLLISION_REWARD
         elif action == FORWARD:
             reward = FORWARD_REWARD
