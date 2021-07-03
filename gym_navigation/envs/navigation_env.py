@@ -43,7 +43,7 @@ TRACK = (
     ((10, 1.5), (-1.5, -1.5)),
     ((1.5, 1.5), (-1.5, -10)),
     ((1.5, -10), (-10, -10)),
-    
+
     ((-7, -7), (-7, 7)),
     ((-7, 7), (7, 7)),
     ((7, 7), (7, 1.5)),
@@ -223,7 +223,6 @@ class NavigationEnv(gym.Env):
 
         collision_occurred = self.collision_occurred()
 
-        
         # Have a maximum number of action to avoid infinite long episodes.
         done = True if collision_occurred or self.total_actions == MAX_ACTIONS else False
 
