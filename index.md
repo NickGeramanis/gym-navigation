@@ -1,37 +1,29 @@
-## Welcome to GitHub Pages
+**Status:** Maintenance
 
-You can use the [editor on GitHub](https://github.com/NickGeramanis/gym-navigation/edit/gh-pages/index.md) to maintain and preview the content for your website in Markdown files.
+# Navigation Environment for OpenAI Gym
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+The navigation environment is a single-agent domain featuring discrete action-space and continuous state-space. It is a simulation of the autonomous navigation problem in robotics. Two tasks are supported:
 
-### Markdown
+## Navigation
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+The goal of this environment is to navigate a robot in a track without crashing into the walls. Initially, the robot is placed randomly into the track but at a safe distance from the walls. The state-space consists of 5 (or 3) range measurements. The action-space consist of 3 action (move_forward, rotate_left, rotate_right). Furthermore, both actions and states have additive white Gaussian noise. The robot is rewarded +5 for moving forward and -0.5 for rotating. If the robot crashes into the wall it is penalized with -200.
 
-```markdown
-Syntax highlighted code block
+## NavigationGoal
 
-# Header 1
-## Header 2
-### Header 3
+The goal of this environment is to navigate a robot to reach a goal location while avoiding the obstacles in the track. Initially, the robot is placed at (0, 0). Both the goal and the obstacles change location in every episode. The state-space consists of 5 (or 3) range measurements and the distance and angle from the goal. The action-space consist of 3 action (move_forward, rotate_left, rotate_right). Furthermore, both actions and states have additive white Gaussian noise. The robot is rewarded +200 for reaching the goal and -200 for crashing. Moreover, if the distance from the robot to its target position decreases after a time step, the robot is rewarded proportional to the reduced distance.
 
-- Bulleted
-- List
 
-1. Numbered
-2. List
+# Installation & Usage
 
-**Bold** and _Italic_ and `Code` text
+Install the package with:
 
-[Link](url) and ![Image](src)
+```bash
+pip3 install -e gym-navigation
 ```
 
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
+You can create an instance of the environment with
 
-### Jekyll Themes
-
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/NickGeramanis/gym-navigation/settings/pages). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
-
-### Support or Contact
-
-Having trouble with Pages? Check out our [documentation](https://docs.github.com/categories/github-pages-basics/) or [contact support](https://support.github.com/contact) and we’ll help you sort it out.
+```python
+gym.make('gym_navigation:Navigation-v0')
+gym.make('gym_navigation:NavigationGoal-v0')
+```
