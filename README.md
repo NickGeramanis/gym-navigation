@@ -33,7 +33,7 @@ The goal of this environment is to navigate a robot to reach a goal location whi
 
 ### Prerequisites
 
-The following packages are required:
+The following libraires need to be installled:
 
 - NumPy
 - Matplotlib
