@@ -1,3 +1,5 @@
+**Status:** Maintenance
+
 # Navigation Environment for OpenAI Gym
 
 The navigation environment is a single-agent domain featuring discrete action-space and continuous state-space. It is a simulation of the autonomous navigation problem in robotics. Two tasks are supported:
