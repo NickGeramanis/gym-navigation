@@ -10,6 +10,7 @@ The navigation environment is a single-agent domain featuring discrete action-sp
   - [Prerequisites](#prerequisites)
   - [Installation](#installation)
 - [Usage](#usage)
+- [Status](#status)
 - [License](#license)
 - [Authors](#authors)
 
@@ -50,7 +51,9 @@ pip3 install -e gym-navigation
 
 ## Usage
 
-You can create an instance of the environment with
+You can use these environments in order to test and compare different reinforcement learning algorithms.
+
+You can create an instance of the environment with:
 
 ```python
 gym.make('gym_navigation:Navigation-v0')
@@ -58,14 +61,14 @@ gym.make('gym_navigation:NavigationGoal-v0')
 ```
 
 
-## License
-
-Distributed under the MIT License. See `LICENSE` for more information.
-
-
 ## Status
 
 Under development.
+
+
+## License
+
+Distributed under the MIT License. See `LICENSE` for more information.
 
 
 ## Authors
