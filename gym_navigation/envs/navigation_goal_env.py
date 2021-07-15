@@ -3,8 +3,8 @@ import math
 import random
 import matplotlib.pyplot as plt
 import gym
-from gym import error, spaces, utils
-from gym.utils import seeding
+from gym import spaces
+
 
 N_ACTIONS = 3
 FORWARD = 0
@@ -20,14 +20,14 @@ SENSOR_STANDARD_DEVIATION = 0.01
 
 WALL_DISTANCE_THRESHOLD = 0.4  # m
 GOAL_DISTANCE_THRESHOLD = 0.4  # m
-MINIMUM_DISTANCE = 1  # m
+MINIMUM_DISTANCE = 2  # m
 
 TRANSITION_REWARD_FACTOR = 10
 GOAL_REWARD = 200
 COLLISION_REWARD = -200
 
-#SCAN_ANGLES = (-math.pi/2, -math.pi/4, 0, math.pi/4, math.pi/2)
-SCAN_ANGLES = (-math.pi/4, 0, math.pi/4)
+SCAN_ANGLES = (-math.pi/2, -math.pi/4, 0, math.pi/4, math.pi/2)
+#SCAN_ANGLES = (-math.pi/4, 0, math.pi/4)
 #SCAN_ANGLES = (-math.pi/2, 0, math.pi/2)
 
 SCAN_RANGE_MAX = 30.0
@@ -35,15 +35,15 @@ SCAN_RANGE_MIN = 0.2
 N_MEASUREMENTS = len(SCAN_ANGLES)
 MAXIMUM_GOAL_DISTANCE = 30
 N_OBSERVATIONS = N_MEASUREMENTS + 2
-N_OBSTACLES = 10
-OBSTACLES_LENGTH = 0.5
+N_OBSTACLES = 20
+OBSTACLES_LENGTH = 1
 
-TRACK = (
+TRACK = [
     ((-10, -10), (-10, 10)),
     ((-10, 10), (10, 10)),
     ((10, 10), (10, -10)),
     ((10, -10), (-10, -10))
-)
+]
 
 
 class NavigationGoalEnv(gym.Env):
@@ -56,7 +56,7 @@ class NavigationGoalEnv(gym.Env):
         '''
         self.pose = np.empty((3,))
         self.goal = np.empty((2,))
-        self.obstacles = np.empty((N_OBSTACLES, 2))
+        self.obstacles_lines = np.empty((N_OBSTACLES * 4, 2, 2))
         self.total_actions = 0
         self.distance_from_goal = 0.0
 
@@ -93,8 +93,22 @@ class NavigationGoalEnv(gym.Env):
                 if distance_from_pose > MINIMUM_DISTANCE and distance_from_goal > MINIMUM_DISTANCE:
                     break
 
-            self.obstacles[obstacle_i][0] = obstacle_x
-            self.obstacles[obstacle_i][1] = obstacle_y
+            starting_point = (obstacle_x - OBSTACLES_LENGTH / 2,
+                              obstacle_y - OBSTACLES_LENGTH / 2)
+
+            line1 = ((starting_point[0], starting_point[0]),
+                     (starting_point[1], starting_point[1] + OBSTACLES_LENGTH))
+            line2 = ((line1[0][0], line1[0][0] + OBSTACLES_LENGTH),
+                     (line1[1][1], line1[1][1]))
+            line3 = ((line2[0][1], line2[0][1]),
+                     (line2[1][1], line2[1][1] - OBSTACLES_LENGTH))
+            line4 = ((line3[0][1], line3[0][1] - OBSTACLES_LENGTH),
+                     (line3[1][1], line3[1][1]))
+
+            self.obstacles_lines[obstacle_i*4] = line1
+            self.obstacles_lines[obstacle_i*4 + 1] = line2
+            self.obstacles_lines[obstacle_i*4 + 2] = line3
+            self.obstacles_lines[obstacle_i*4 + 3] = line4
 
     def init_goal(self):
         while True:
@@ -182,7 +196,7 @@ class NavigationGoalEnv(gym.Env):
             min_dist = SCAN_RANGE_MAX
             min_x = x1
             min_y = y1
-            for wall in TRACK:
+            for wall in np.concatenate((TRACK, self.obstacles_lines), axis=0):
                 x2 = wall[0][0]
                 x3 = wall[0][1]
                 y2 = wall[1][0]
@@ -295,8 +309,8 @@ class NavigationGoalEnv(gym.Env):
 
     def render(self):
         plt.clf()
-        for point in TRACK:
-            plt.plot(point[0], point[1], 'b')
+        for wall in np.concatenate((TRACK, self.obstacles_lines), axis=0):
+            plt.plot(wall[0], wall[1], 'b')
 
         for scan_line in self.scan_lines:
             plt.plot(scan_line[0], scan_line[1], 'y')
@@ -309,7 +323,7 @@ class NavigationGoalEnv(gym.Env):
         plt.xlim((-12, 12))
         plt.ylim((-12, 12))
 
-        plt.pause(0.05)
+        plt.pause(0.01)
 
     def close(self):
         plt.close()

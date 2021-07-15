@@ -3,8 +3,7 @@ import math
 import random
 import matplotlib.pyplot as plt
 import gym
-from gym import error, spaces, utils
-from gym.utils import seeding
+from gym import spaces
 
 
 N_ACTIONS = 3
@@ -28,8 +27,8 @@ FORWARD_REWARD = +5
 YAW_REWARD = -0.5
 STEP_REWARD = 0
 
-#SCAN_ANGLES = (-math.pi/2, -math.pi/4, 0, math.pi/4, math.pi/2)
-SCAN_ANGLES = (-math.pi/4, 0, math.pi/4)
+SCAN_ANGLES = (-math.pi/2, -math.pi/4, 0, math.pi/4, math.pi/2)
+#SCAN_ANGLES = (-math.pi/4, 0, math.pi/4)
 #SCAN_ANGLES = (-math.pi/2, 0, math.pi/2)
 
 SCAN_RANGE_MAX = 30.0
@@ -237,8 +236,8 @@ class NavigationEnv(gym.Env):
 
     def render(self):
         plt.clf()
-        for point in TRACK:
-            plt.plot(point[0], point[1], 'b')
+        for wall in TRACK:
+            plt.plot(wall[0], wall[1], 'b')
 
         for scan_line in self.scan_lines:
             plt.plot(scan_line[0], scan_line[1], 'y')
