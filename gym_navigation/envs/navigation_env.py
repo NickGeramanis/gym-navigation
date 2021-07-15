@@ -28,8 +28,6 @@ YAW_REWARD = -0.5
 STEP_REWARD = 0
 
 SCAN_ANGLES = (-math.pi/2, -math.pi/4, 0, math.pi/4, math.pi/2)
-#SCAN_ANGLES = (-math.pi/4, 0, math.pi/4)
-#SCAN_ANGLES = (-math.pi/2, 0, math.pi/2)
 
 SCAN_RANGE_MAX = 30.0
 SCAN_RANGE_MIN = 0.2
