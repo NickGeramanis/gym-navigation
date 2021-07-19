@@ -5,14 +5,18 @@ The navigation environment is a single-agent domain featuring discrete action-sp
 ## Table of Contents
 
 
-- [Description](#description)
-- [Getting Started](#getting-started)
-  - [Prerequisites](#prerequisites)
-  - [Installation](#installation)
-- [Usage](#usage)
-- [Status](#status)
-- [License](#license)
-- [Authors](#authors)
+- [Navigation Environment for OpenAI Gym](#navigation-environment-for-openai-gym)
+  - [Table of Contents](#table-of-contents)
+  - [Description](#description)
+    - [Navigation](#navigation)
+    - [NavigationGoal](#navigationgoal)
+  - [Getting Started](#getting-started)
+    - [Prerequisites](#prerequisites)
+    - [Installation](#installation)
+  - [Usage](#usage)
+  - [Status](#status)
+  - [License](#license)
+  - [Authors](#authors)
 
 
 ## Description
@@ -63,6 +67,8 @@ gym.make('gym_navigation:Navigation-v0')
 gym.make('gym_navigation:NavigationGoal-v0')
 ```
 
+Furthermore, some unit tests have been implemented in folder `tests` to verify the proper functioning of the code.
+
 
 ## Status
 
@@ -71,7 +77,7 @@ Under maintenance.
 
 ## License
 
-Distributed under the MIT License. See `LICENSE` for more information.
+Distributed under the GPL-3.0 License. See `LICENSE` for more information.
 
 
 ## Authors
