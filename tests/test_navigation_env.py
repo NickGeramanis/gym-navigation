@@ -78,6 +78,7 @@ class TestNavigationEnv:
     def test_update_scan(self):
         # 99.7% success rate due to noise (tolerance is 3SD)
         env = NavigationEnv()
+        env.reset()
         env.pose[0] = 0
         env.pose[1] = 9
         env.pose[2] = 0
@@ -92,7 +93,6 @@ class TestNavigationEnv:
     def test_collision_occured(self):
         env = NavigationEnv()
         env.reset()
-        print(env.TRACK)
         env.pose[0] = env.TRACK[0][0][0]
         env.pose[1] = env.TRACK[0][1][0]
 

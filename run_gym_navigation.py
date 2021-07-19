@@ -1,7 +1,7 @@
 import gym
 
-#env_name = 'gym_navigation:NavigationGoal-v0'
-env_name = 'gym_navigation:Navigation-v0'
+env_name = 'gym_navigation:NavigationGoal-v0'
+#env_name = 'gym_navigation:Navigation-v0'
 env = gym.make(env_name)
 
 for i_episode in range(20):
