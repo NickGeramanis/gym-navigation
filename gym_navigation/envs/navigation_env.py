@@ -6,63 +6,62 @@ import gym
 from gym import spaces
 
 
-N_ACTIONS = 3
-FORWARD = 0
-YAW_RIGHT = 1
-YAW_LEFT = 2
-
-FORWARD_LINEAR_SHIFT = 0.2  # m
-YAW_LINEAR_SHIFT = 0.04  # m
-YAW_ANGULAR_SHIFT = 0.2  # rad
-
-SHIFT_STANDARD_DEVIATION = 0.02
-SENSOR_STANDARD_DEVIATION = 0.01
-
-WALL_DISTANCE_THRESHOLD = 0.4
-
-MAX_ACTIONS = 500
-
-COLLISION_REWARD = -200
-FORWARD_REWARD = +5
-YAW_REWARD = -0.5
-STEP_REWARD = 0
-
-SCAN_ANGLES = (-math.pi/2, -math.pi/4, 0, math.pi/4, math.pi/2)
-
-SCAN_RANGE_MAX = 30.0
-SCAN_RANGE_MIN = 0.2
-N_MEASUREMENTS = len(SCAN_ANGLES)
-
-TRACK = (
-    ((-10, -10), (-10, 10)),
-    ((-10, 10), (10, 10)),
-    ((10, 10), (10, -1.5)),
-    ((10, 1.5), (-1.5, -1.5)),
-    ((1.5, 1.5), (-1.5, -10)),
-    ((1.5, -10), (-10, -10)),
-
-    ((-7, -7), (-7, 7)),
-    ((-7, 7), (7, 7)),
-    ((7, 7), (7, 1.5)),
-    ((7, -1.5), (1.5, 1.5)),
-    ((-1.5, -1.5), (1.5, -7)),
-    ((-1.5, -7), (-7, -7))
-)
-
-SPAWNABLE_AREA = (
-    ((-8.5, -8.5), (-8.5, 8.5)),
-    ((-8.5, 8.5), (8.5, 8.5)),
-    ((8.5, 8.5), (0, 8.5)),
-    ((0, 8.5), (0, 0)),
-    ((0, 0), (-8.5, 0)),
-    ((-8.5, 0), (-8.5, -8.5))
-)
-
-
 class NavigationEnv(gym.Env):
 
+    N_ACTIONS = 3
+    FORWARD = 0
+    YAW_RIGHT = 1
+    YAW_LEFT = 2
+
+    FORWARD_LINEAR_SHIFT = 0.2  # m
+    YAW_LINEAR_SHIFT = 0.04  # m
+    YAW_ANGULAR_SHIFT = 0.2  # rad
+
+    SHIFT_STANDARD_DEVIATION = 0.02
+    SENSOR_STANDARD_DEVIATION = 0.01
+
+    WALL_DISTANCE_THRESHOLD = 0.4
+
+    MAX_ACTIONS = 500
+
+    COLLISION_REWARD = -200
+    FORWARD_REWARD = +5
+    YAW_REWARD = -0.5
+    STEP_REWARD = 0
+
+    SCAN_ANGLES = (-math.pi/2, -math.pi/4, 0, math.pi/4, math.pi/2)
+
+    SCAN_RANGE_MAX = 30.0
+    SCAN_RANGE_MIN = 0.2
+    N_MEASUREMENTS = len(SCAN_ANGLES)
+
+    TRACK = (
+        ((-10, -10), (-10, 10)),
+        ((-10, 10), (10, 10)),
+        ((10, 10), (10, -1.5)),
+        ((10, 1.5), (-1.5, -1.5)),
+        ((1.5, 1.5), (-1.5, -10)),
+        ((1.5, -10), (-10, -10)),
+
+        ((-7, -7), (-7, 7)),
+        ((-7, 7), (7, 7)),
+        ((7, 7), (7, 1.5)),
+        ((7, -1.5), (1.5, 1.5)),
+        ((-1.5, -1.5), (1.5, -7)),
+        ((-1.5, -7), (-7, -7))
+    )
+
+    SPAWNABLE_AREA = (
+        ((-8.5, -8.5), (-8.5, 8.5)),
+        ((-8.5, 8.5), (8.5, 8.5)),
+        ((8.5, 8.5), (0, 8.5)),
+        ((0, 8.5), (0, 0)),
+        ((0, 0), (-8.5, 0)),
+        ((-8.5, 0), (-8.5, -8.5))
+    )
+
     def __init__(self):
-        self.ranges = np.empty((N_MEASUREMENTS,))
+        self.ranges = np.empty((self.N_MEASUREMENTS,))
         '''
         Pose = (x, y, yaw)
         Note that yaw is measured from the y axis and E [-pi, pi].
@@ -70,13 +69,14 @@ class NavigationEnv(gym.Env):
         self.pose = np.empty((3,))
         self.total_actions = 0
 
-        self.scan_lines = np.empty((N_MEASUREMENTS,), dtype=object)
-        self.scan_points = np.empty((N_MEASUREMENTS,), dtype=object)
+        self.scan_lines = np.empty((self.N_MEASUREMENTS,), dtype=object)
+        self.scan_points = np.empty((self.N_MEASUREMENTS,), dtype=object)
 
-        self.action_space = spaces.Discrete(N_ACTIONS)
+        self.action_space = spaces.Discrete(self.N_ACTIONS)
 
         self.observation_space = spaces.Box(
-            low=SCAN_RANGE_MAX, high=SCAN_RANGE_MIN, shape=(N_MEASUREMENTS,), dtype=np.float32)
+            low=self.SCAN_RANGE_MAX, high=self.SCAN_RANGE_MIN,
+            shape=(self.N_MEASUREMENTS,), dtype=np.float32)
 
     def get_point(self, x0, y0, angle, d):
         '''
@@ -104,18 +104,18 @@ class NavigationEnv(gym.Env):
         Change the pose of the robot depending on the given action.
         In each action we add white Gaussian noise: y = y_hat + w.
         '''
-        linear_shift_noise = random.gauss(0, SHIFT_STANDARD_DEVIATION)
-        angular_shift_noise = random.gauss(0, SHIFT_STANDARD_DEVIATION)
+        linear_shift_noise = random.gauss(0, self.SHIFT_STANDARD_DEVIATION)
+        angular_shift_noise = random.gauss(0, self.SHIFT_STANDARD_DEVIATION)
 
-        if action == FORWARD:
-            d = FORWARD_LINEAR_SHIFT + linear_shift_noise
+        if action == self.FORWARD:
+            d = self.FORWARD_LINEAR_SHIFT + linear_shift_noise
             self.pose[2] += angular_shift_noise
-        elif action == YAW_RIGHT:
-            d = YAW_LINEAR_SHIFT + linear_shift_noise
-            self.pose[2] += YAW_ANGULAR_SHIFT + angular_shift_noise
+        elif action == self.YAW_RIGHT:
+            d = self.YAW_LINEAR_SHIFT + linear_shift_noise
+            self.pose[2] += self.YAW_ANGULAR_SHIFT + angular_shift_noise
         else:
-            d = YAW_LINEAR_SHIFT + linear_shift_noise
-            self.pose[2] -= YAW_ANGULAR_SHIFT + angular_shift_noise
+            d = self.YAW_LINEAR_SHIFT + linear_shift_noise
+            self.pose[2] -= self.YAW_ANGULAR_SHIFT + angular_shift_noise
 
         # Yaw must E [-pi,pi].
         if self.pose[2] < -math.pi:
@@ -128,7 +128,7 @@ class NavigationEnv(gym.Env):
 
     def update_scan(self):
         # Get the range distance from each measurement angle.
-        angle_list = np.array(SCAN_ANGLES) + self.pose[2]
+        angle_list = np.array(self.SCAN_ANGLES) + self.pose[2]
         x0 = self.pose[0]
         y0 = self.pose[1]
 
@@ -139,15 +139,15 @@ class NavigationEnv(gym.Env):
             elif angle_list[i] > math.pi:
                 angle_list[i] = angle_list[i] - 2 * math.pi
 
-        for i in range(N_MEASUREMENTS):
-            x1, y1 = self.get_point(x0, y0, angle_list[i], SCAN_RANGE_MAX)
+        for i in range(self.N_MEASUREMENTS):
+            x1, y1 = self.get_point(x0, y0, angle_list[i], self.SCAN_RANGE_MAX)
             scan_line = ((x0, x1), (y0, y1))
             self.scan_lines[i] = scan_line
 
-            min_dist = SCAN_RANGE_MAX
+            min_dist = self.SCAN_RANGE_MAX
             min_x = x1
             min_y = y1
-            for wall in TRACK:
+            for wall in self.TRACK:
                 x2 = wall[0][0]
                 x3 = wall[0][1]
                 y2 = wall[1][0]
@@ -165,10 +165,14 @@ class NavigationEnv(gym.Env):
                 x = nominator_x / denominator
                 y = nominator_y / denominator
 
-                not_in_scan_line = (x1 > x0 and (x < x0 or x > x1)) or (x0 > x1 and (x < x1 or x > x0)) or (
-                    y1 > y0 and (y < y0 or y > y1)) or (y0 > y1 and (y < y1 or y > y0))
-                not_in_wall_line = (x3 > x2 and (x < x2 or x > x3)) or (x2 > x3 and (x < x3 or x > x2)) or (
-                    y3 > y2 and (y < y2 or y > y3)) or (y2 > y3 and (y < y3 or y > y2))
+                not_in_scan_line = (x1 > x0 and (x < x0 or x > x1)) or \
+                    (x0 > x1 and (x < x1 or x > x0)) or \
+                    (y1 > y0 and (y < y0 or y > y1)) or \
+                    (y0 > y1 and (y < y1 or y > y0))
+                not_in_wall_line = (x3 > x2 and (x < x2 or x > x3)) or \
+                    (x2 > x3 and (x < x3 or x > x2)) or \
+                    (y3 > y2 and (y < y2 or y > y3)) or \
+                    (y2 > y3 and (y < y3 or y > y2))
                 if not_in_scan_line or not_in_wall_line:
                     continue
 
@@ -179,13 +183,13 @@ class NavigationEnv(gym.Env):
                     min_y = y
 
             self.scan_points[i] = (min_x, min_y)
-            sensor_noise = random.gauss(0, SENSOR_STANDARD_DEVIATION)
+            sensor_noise = random.gauss(0, self.SENSOR_STANDARD_DEVIATION)
             min_dist += sensor_noise
             self.ranges[i] = min_dist
 
     def collision_occurred(self):
         for range_ in self.ranges:
-            if range_ < WALL_DISTANCE_THRESHOLD:
+            if range_ < self.WALL_DISTANCE_THRESHOLD:
                 return True
 
         return False
@@ -197,7 +201,7 @@ class NavigationEnv(gym.Env):
         self.total_actions = 0
 
         # Random initial pose.
-        area = random.choice(SPAWNABLE_AREA)
+        area = random.choice(self.SPAWNABLE_AREA)
         self.pose[0] = random.uniform(area[0][0], area[0][1])
         self.pose[1] = random.uniform(area[1][0], area[1][1])
         self.pose[2] = random.uniform(-math.pi, math.pi)
@@ -221,20 +225,20 @@ class NavigationEnv(gym.Env):
         collision_occurred = self.collision_occurred()
 
         # Have a maximum number of action to avoid infinite long episodes.
-        done = True if collision_occurred or self.total_actions == MAX_ACTIONS else False
+        done = collision_occurred or self.total_actions == self.MAX_ACTIONS
 
         if collision_occurred:
-            reward = COLLISION_REWARD
-        elif action == FORWARD:
-            reward = FORWARD_REWARD
+            reward = self.COLLISION_REWARD
+        elif action == self.FORWARD:
+            reward = self.FORWARD_REWARD
         else:
-            reward = YAW_REWARD
+            reward = self.YAW_REWARD
 
         return observation, reward, done, []
 
     def render(self):
         plt.clf()
-        for wall in TRACK:
+        for wall in self.TRACK:
             plt.plot(wall[0], wall[1], 'b')
 
         for scan_line in self.scan_lines:
