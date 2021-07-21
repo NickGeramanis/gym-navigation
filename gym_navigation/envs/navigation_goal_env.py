@@ -37,14 +37,24 @@ class NavigationGoalEnv(gym.Env):
     N_OBSTACLES = 20
     OBSTACLES_LENGTH = 1
 
-    TRACK = [
+    TRACK1 = (
         ((-10, -10), (-10, 10)),
         ((-10, 10), (10, 10)),
         ((10, 10), (10, -10)),
         ((10, -10), (-10, -10))
-    ]
+    )
 
-    def __init__(self):
+    SPAWNABLE_AREA1 = (
+        ((-9, 9), (-9, 9)),
+    )
+
+    def __init__(self, track_id):
+        if track_id == 1:
+            self.track = self.TRACK1
+            self.spawnable_area = self.SPAWNABLE_AREA1
+        else:
+            raise Exception('Invalid track id')
+
         self.ranges = np.empty((self.N_MEASUREMENTS,))
         '''
         Pose = (x, y, yaw).
@@ -53,6 +63,7 @@ class NavigationGoalEnv(gym.Env):
         self.pose = np.empty((3,))
         self.goal = np.empty((2,))
         self.obstacles_lines = np.empty((self.N_OBSTACLES * 4, 2, 2))
+        self.obstacles_centers = np.empty((self.N_OBSTACLES, 2))
         self.total_actions = 0
         self.distance_from_goal = 0.0
 
@@ -76,22 +87,14 @@ class NavigationGoalEnv(gym.Env):
             shape=(self.N_OBSERVATIONS,), dtype=np.float32)
 
     def init_obstacles(self):
+        # Don't check for overlapping obstacles in order to create strange shapes
         for obstacle_i in range(self.N_OBSTACLES):
-            while True:
-                obstacle_x = random.uniform(-9, 9)
-                obstacle_y = random.uniform(-9, 9)
+            area = random.choice(self.spawnable_area)
+            obstacle_x = random.uniform(area[0][0], area[0][1])
+            obstacle_y = random.uniform(area[1][0], area[1][1])
 
-                distance_from_pose = math.sqrt(
-                    (obstacle_x - self.pose[0]) ** 2 +
-                    (obstacle_y - self.pose[1]) ** 2)
-
-                distance_from_goal = math.sqrt(
-                    (obstacle_x - self.goal[0]) ** 2 +
-                    (obstacle_y - self.goal[1]) ** 2)
-
-                if distance_from_pose > self.MINIMUM_DISTANCE and \
-                        distance_from_goal > self.MINIMUM_DISTANCE:
-                    break
+            self.obstacles_centers[obstacle_i][0] = obstacle_x
+            self.obstacles_centers[obstacle_i][1] = obstacle_y
 
             starting_point = (obstacle_x - self.OBSTACLES_LENGTH / 2,
                               obstacle_y - self.OBSTACLES_LENGTH / 2)
@@ -106,26 +109,49 @@ class NavigationGoalEnv(gym.Env):
             line4 = ((line3[0][1], line3[0][1] - self.OBSTACLES_LENGTH),
                      (line3[1][1], line3[1][1]))
 
-            self.obstacles_lines[obstacle_i*4] = line1
-            self.obstacles_lines[obstacle_i*4 + 1] = line2
-            self.obstacles_lines[obstacle_i*4 + 2] = line3
-            self.obstacles_lines[obstacle_i*4 + 3] = line4
+            self.obstacles_lines[obstacle_i * 4] = line1
+            self.obstacles_lines[obstacle_i * 4 + 1] = line2
+            self.obstacles_lines[obstacle_i * 4 + 2] = line3
+            self.obstacles_lines[obstacle_i * 4 + 3] = line4
 
     def init_goal(self):
-        while True:
-            goal_x = random.uniform(-9, 9)
-            goal_y = random.uniform(-9, 9)
-            distance_from_pose = math.sqrt(
-                (goal_x - self.pose[0]) ** 2 + (goal_x - self.pose[1]) ** 2)
-            if distance_from_pose > self.MINIMUM_DISTANCE:
-                break
+        done = False
+        while not done:
+            area = random.choice(self.spawnable_area)
+            goal_x = random.uniform(area[0][0], area[0][1])
+            goal_y = random.uniform(area[1][0], area[1][1])
+            done = True
+
+            for obstacle in self.obstacles_centers:
+                distance_from_obstacle = np.linalg.norm(
+                    np.array([goal_x, goal_y]) - obstacle)
+                if distance_from_obstacle < self.MINIMUM_DISTANCE:
+                    done = False
 
         self.goal[0] = goal_x
         self.goal[1] = goal_y
 
     def init_pose(self):
-        self.pose[0] = 0.0
-        self.pose[1] = 0.0
+        done = False
+        while not done:
+            area = random.choice(self.spawnable_area)
+            pose_x = random.uniform(area[0][0], area[0][1])
+            pose_y = random.uniform(area[1][0], area[1][1])
+            done = True
+
+            for obstacle in self.obstacles_centers:
+                distance_from_obstacle = np.linalg.norm(
+                    np.array([pose_x, pose_y]) - obstacle)
+                if distance_from_obstacle < self.MINIMUM_DISTANCE:
+                    done = False
+
+            distance_from_goal = np.linalg.norm(
+                np.array([pose_x, pose_y]) - self.goal)
+            if distance_from_goal < self.MINIMUM_DISTANCE:
+                done = False
+
+        self.pose[0] = pose_x
+        self.pose[1] = pose_y
         self.pose[2] = random.uniform(-math.pi, math.pi)
 
     def get_point(self, x0, y0, angle, d):
@@ -197,7 +223,7 @@ class NavigationGoalEnv(gym.Env):
             min_dist = self.SCAN_RANGE_MAX
             min_x = x1
             min_y = y1
-            for wall in np.concatenate((self.TRACK, self.obstacles_lines),
+            for wall in np.concatenate((self.track, self.obstacles_lines),
                                        axis=0):
                 x2 = wall[0][0]
                 x3 = wall[0][1]
@@ -250,9 +276,9 @@ class NavigationGoalEnv(gym.Env):
         plt.figure(figsize=(6.40, 4.80))
         self.total_actions = 0
 
-        self.init_pose()
-        self.init_goal()
         self.init_obstacles()
+        self.init_goal()
+        self.init_pose()
 
         self.update_scan()
 
@@ -283,16 +309,8 @@ class NavigationGoalEnv(gym.Env):
 
         self.update_scan()
 
-        position = np.array([self.pose[0], self.pose[1]])
-        distance_from_goal = np.linalg.norm(position - self.goal)
-
-        goal_angle = math.atan2(
-            self.goal[1] - self.pose[1], self.goal[0] - self.pose[0])
-        angle_from_goal = goal_angle - self.pose[2]
-        if angle_from_goal > math.pi:
-            angle_from_goal -= 2 * math.pi
-        elif angle_from_goal < -math.pi:
-            angle_from_goal += 2 * math.pi
+        distance_from_goal = self.calculate_distance_from_goal()
+        angle_from_goal = self.calculate_angle_from_goal()
 
         observation = list(self.ranges[:])
         observation.append(distance_from_goal)
@@ -313,9 +331,24 @@ class NavigationGoalEnv(gym.Env):
 
         return observation, reward, done, []
 
+    def calculate_angle_from_goal(self):
+        goal_angle = math.atan2(
+            self.goal[1] - self.pose[1], self.goal[0] - self.pose[0])
+        angle_from_goal = goal_angle - self.pose[2]
+        if angle_from_goal > math.pi:
+            angle_from_goal -= 2 * math.pi
+        elif angle_from_goal < -math.pi:
+            angle_from_goal += 2 * math.pi
+        return angle_from_goal
+
+    def calculate_distance_from_goal(self):
+        position = np.array([self.pose[0], self.pose[1]])
+        distance_from_goal = np.linalg.norm(position - self.goal)
+        return distance_from_goal
+
     def render(self):
         plt.clf()
-        for wall in np.concatenate((self.TRACK, self.obstacles_lines), axis=0):
+        for wall in np.concatenate((self.track, self.obstacles_lines), axis=0):
             plt.plot(wall[0], wall[1], 'b')
 
         for scan_line in self.scan_lines:

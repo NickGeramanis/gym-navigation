@@ -35,7 +35,7 @@ class NavigationEnv(gym.Env):
     SCAN_RANGE_MIN = 0.2
     N_MEASUREMENTS = len(SCAN_ANGLES)
 
-    TRACK = (
+    TRACK1 = (
         ((-10, -10), (-10, 10)),
         ((-10, 10), (10, 10)),
         ((10, 10), (10, -1.5)),
@@ -51,7 +51,7 @@ class NavigationEnv(gym.Env):
         ((-1.5, -7), (-7, -7))
     )
 
-    SPAWNABLE_AREA = (
+    SPAWNABLE_AREA1 = (
         ((-8.5, -8.5), (-8.5, 8.5)),
         ((-8.5, 8.5), (8.5, 8.5)),
         ((8.5, 8.5), (0, 8.5)),
@@ -60,7 +60,13 @@ class NavigationEnv(gym.Env):
         ((-8.5, 0), (-8.5, -8.5))
     )
 
-    def __init__(self):
+    def __init__(self, track_id=1):
+        if track_id == 1:
+            self.track = self.TRACK1
+            self.spawnable_area = self.SPAWNABLE_AREA1
+        else:
+            raise Exception('Invalid track id')
+
         self.ranges = np.empty((self.N_MEASUREMENTS,))
         '''
         Pose = (x, y, yaw)
@@ -147,7 +153,7 @@ class NavigationEnv(gym.Env):
             min_dist = self.SCAN_RANGE_MAX
             min_x = x1
             min_y = y1
-            for wall in self.TRACK:
+            for wall in self.track:
                 x2 = wall[0][0]
                 x3 = wall[0][1]
                 y2 = wall[1][0]
@@ -200,16 +206,18 @@ class NavigationEnv(gym.Env):
 
         self.total_actions = 0
 
-        # Random initial pose.
-        area = random.choice(self.SPAWNABLE_AREA)
-        self.pose[0] = random.uniform(area[0][0], area[0][1])
-        self.pose[1] = random.uniform(area[1][0], area[1][1])
-        self.pose[2] = random.uniform(-math.pi, math.pi)
+        self.init_pose()
 
         self.update_scan()
         observation = list(self.ranges)
 
         return observation
+
+    def init_pose(self):
+        area = random.choice(self.spawnable_area)
+        self.pose[0] = random.uniform(area[0][0], area[0][1])
+        self.pose[1] = random.uniform(area[1][0], area[1][1])
+        self.pose[2] = random.uniform(-math.pi, math.pi)
 
     def step(self, action):
         assert self.action_space.contains(
@@ -238,7 +246,7 @@ class NavigationEnv(gym.Env):
 
     def render(self):
         plt.clf()
-        for wall in self.TRACK:
+        for wall in self.track:
             plt.plot(wall[0], wall[1], 'b')
 
         for scan_line in self.scan_lines:

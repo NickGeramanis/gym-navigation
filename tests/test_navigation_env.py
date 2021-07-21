@@ -7,11 +7,15 @@ from gym_navigation.envs.navigation_env import NavigationEnv
 
 
 class TestNavigationEnv:
-    POINT_TOLERANCE = 0.000000000001
+    TOLERANCE = 0.000000000001
+
+    def test_invalid_track_id(self):
+        with pytest.raises(Exception):
+            env = NavigationEnv(-1)
 
     def test_get_point(self):
         # movement in the 1st quadrant
-        env = NavigationEnv()
+        env = NavigationEnv(1)
         x0 = -1
         y0 = 1
         angle = -math.pi / 4
@@ -22,12 +26,12 @@ class TestNavigationEnv:
         x1_correct = x0 - d * math.sin(abs(angle))
         y1_correct = y0 + d * math.cos(abs(angle))
 
-        assert math.isclose(x1, x1_correct, abs_tol=self.POINT_TOLERANCE)
-        assert math.isclose(y1, y1_correct, abs_tol=self.POINT_TOLERANCE)
+        assert math.isclose(x1, x1_correct, abs_tol=self.TOLERANCE)
+        assert math.isclose(y1, y1_correct, abs_tol=self.TOLERANCE)
 
     def test_perform_action_forward(self):
-        # 99.7% success rate due to noise (tolerance is 3SD)
-        env = NavigationEnv()
+        # 99.7% success rate due to random noise (tolerance is 3SD)
+        env = NavigationEnv(1)
         env.pose[0] = random.uniform(-10, 10)
         env.pose[1] = random.uniform(-10, 10)
         env.pose[2] = random.uniform(-math.pi / 2, math.pi / 2)
@@ -42,8 +46,8 @@ class TestNavigationEnv:
                             abs_tol=3 * env.SHIFT_STANDARD_DEVIATION)
 
     def test_perform_action_yaw_left(self):
-        # 99.7% success rate due to noise (tolerance is 3SD)
-        env = NavigationEnv()
+        # 99.7% success rate due to random noise (tolerance is 3SD)
+        env = NavigationEnv(1)
         env.pose[0] = random.uniform(-10, 10)
         env.pose[1] = random.uniform(-10, 10)
         env.pose[2] = random.uniform(-math.pi / 2, math.pi / 2)
@@ -59,8 +63,8 @@ class TestNavigationEnv:
             abs_tol=env.YAW_ANGULAR_SHIFT + 3 * env.SHIFT_STANDARD_DEVIATION)
 
     def test_perform_action_yaw_right(self):
-        # 99.7% success rate due to noise (tolerance is 3SD)
-        env = NavigationEnv()
+        # 99.7% success rate due to random noise (tolerance is 3SD)
+        env = NavigationEnv(1)
         env.pose[0] = random.uniform(-10, 10)
         env.pose[1] = random.uniform(-10, 10)
         env.pose[2] = random.uniform(-math.pi / 2, math.pi / 2)
@@ -76,8 +80,8 @@ class TestNavigationEnv:
             abs_tol=env.YAW_ANGULAR_SHIFT + 3 * env.SHIFT_STANDARD_DEVIATION)
 
     def test_update_scan(self):
-        # 99.7% success rate due to noise (tolerance is 3SD)
-        env = NavigationEnv()
+        # 99.7% success rate due to random noise (tolerance is 3SD)
+        env = NavigationEnv(1)
         env.reset()
         env.pose[0] = 0
         env.pose[1] = 9
@@ -85,16 +89,17 @@ class TestNavigationEnv:
 
         env.update_scan()
 
-        correct_ranges = [10, 1 / math.cos(math.pi / 4), 1, 1 / math.cos(math.pi / 4), 10]
+        correct_ranges = [
+            10, 1 / math.cos(math.pi / 4), 1, 1 / math.cos(math.pi / 4), 10]
         for i in range(env.N_MEASUREMENTS):
             assert math.isclose(env.ranges[i], correct_ranges[i],
                                 abs_tol=3 * env.SENSOR_STANDARD_DEVIATION)
 
     def test_collision_occured(self):
-        env = NavigationEnv()
+        env = NavigationEnv(1)
         env.reset()
-        env.pose[0] = env.TRACK[0][0][0]
-        env.pose[1] = env.TRACK[0][1][0]
+        env.pose[0] = env.track[0][0][0]
+        env.pose[1] = env.track[0][1][0]
 
         env.update_scan()
 

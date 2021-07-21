@@ -30,7 +30,7 @@ The goal of this environment is to navigate a robot on a track without crashing 
 ![Navigation environment](/images/navigation_env.png)
 ### NavigationGoal
 
-The goal of this environment is to navigate a robot to reach a goal location while avoiding the obstacles in the track. Initially, the robot is placed at (0, 0). Both the goal and the obstacles change location in every episode. The state-space consists of 5 range measurements and the distance and angle from the goal. The action-space consist of 3 action (move_forward, rotate_left, rotate_right). Furthermore, both actions and states have additive white Gaussian noise. The robot is rewarded +200 for reaching the goal and -200 for crashing. Moreover, if the distance from the robot to its target position decreases after a time step, the robot is rewarded proportional to the reduced distance.
+The goal of this environment is to navigate a robot to reach a goal location while avoiding the obstacles in the track. Initially, the robot is placed randomly into the track but at a safe distance from the obstacles. Both the goal and the obstacles change location in every episode. The state-space consists of 5 range measurements and the distance and angle from the goal. The action-space consist of 3 action (move_forward, rotate_left, rotate_right). Furthermore, both actions and states have additive white Gaussian noise. The robot is rewarded +200 for reaching the goal and -200 for crashing. Moreover, if the distance from the robot to its target position decreases after a time step, the robot is rewarded proportional to the reduced distance.
 
 ![NavigationGoal environment](/images/navigation_goal_env.png)
 
@@ -63,9 +63,11 @@ You can use these environments in order to test and compare different reinforcem
 You can create an instance of the environment with:
 
 ```python
-gym.make('gym_navigation:Navigation-v0')
-gym.make('gym_navigation:NavigationGoal-v0')
+gym.make('gym_navigation:Navigation-v0', track_id=1)
+gym.make('gym_navigation:NavigationGoal-v0', track_id=1)
 ```
+
+Currently only one track has been implemented in each environment.
 
 Furthermore, some unit tests have been implemented in folder `tests` to verify the proper functioning of the code.
 
