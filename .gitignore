@@ -1,0 +1,6 @@
+**/__pycache__
+venv/
+tests/.pytest_cache
+.idea/
+/gym_navigation.egg-info
+*.log
