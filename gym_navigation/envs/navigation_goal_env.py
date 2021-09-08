@@ -57,7 +57,7 @@ class NavigationGoalEnv(gym.Env):
             self.__track = self.__TRACK1
             self.__spawnable_area = self.__SPAWNABLE_AREA1
         else:
-            raise ValueError('Invalid track id')
+            raise ValueError(f'Invalid track id {track_id} ({type(track_id)})')
 
         self.__ranges = np.empty((self.__N_MEASUREMENTS,))
 
@@ -297,7 +297,7 @@ class NavigationGoalEnv(gym.Env):
 
     def step(self, action: int) -> Tuple[List[float], int, bool, List[str]]:
         assert self.action_space.contains(
-            action), f'{action} ({type(action)}) invalid'
+            action), f'Invalid action {action} ({type(action)})'
 
         self.__perform_action(action)
 

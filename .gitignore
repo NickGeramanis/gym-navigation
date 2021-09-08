@@ -6,4 +6,4 @@ venv/
 .coverage
 /coverage-reports
 /gym_navigation.egg-info
-run_gym_navigation.py
+scripts/

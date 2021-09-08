@@ -63,7 +63,7 @@ class NavigationEnv(gym.Env):
             self.__track = self.__TRACK1
             self.__spawnable_area = self.__SPAWNABLE_AREA1
         else:
-            raise ValueError('Invalid track id')
+            raise ValueError(f'Invalid track id {track_id} ({type(track_id)})')
 
         self.__ranges = np.empty((self.__N_MEASUREMENTS,))
 
@@ -113,7 +113,7 @@ class NavigationEnv(gym.Env):
             d = self.__YAW_LINEAR_SHIFT + linear_shift_noise
             self.__pose[2] -= self.__YAW_ANGULAR_SHIFT + angular_shift_noise
         else:
-            raise ValueError(f'{action} ({type(action)}) invalid')
+            raise ValueError(f'Invalid action {action} ({type(action)})')
 
         # Yaw must E [-pi,pi].
         if self.__pose[2] < -math.pi:
@@ -211,7 +211,7 @@ class NavigationEnv(gym.Env):
 
     def step(self, action: int) -> Tuple[List[float], float, bool, List[str]]:
         assert self.action_space.contains(
-            action), f'{action} ({type(action)}) invalid'
+            action), f'Invalid action {action} ({type(action)})'
 
         self.__perform_action(action)
 
@@ -228,7 +228,7 @@ class NavigationEnv(gym.Env):
             elif action == self.__YAW_LEFT or action == self.__YAW_RIGHT:
                 reward = self.__YAW_REWARD
             else:
-                raise ValueError(f'{action} ({type(action)}) invalid')
+                raise ValueError(f'Invalid action {action} ({type(action)})')
 
         return observation, reward, done, []
 
