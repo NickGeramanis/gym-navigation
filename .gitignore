@@ -1,9 +1,9 @@
 **/__pycache__
 venv/
-tests/.pytest_cache
+**/.pytest_cache
 .idea/
-/gym_navigation.egg-info
 *.log
 .coverage
-run_gym_navigation.py
 /coverage-reports
+/gym_navigation.egg-info
+run_gym_navigation.py
