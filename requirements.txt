@@ -2,3 +2,4 @@ gym
 numpy
 matplotlib
 pytest
+coverage

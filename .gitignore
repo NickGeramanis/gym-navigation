@@ -4,3 +4,6 @@ tests/.pytest_cache
 .idea/
 /gym_navigation.egg-info
 *.log
+.coverage
+run_gym_navigation.py
+/coverage-reports
