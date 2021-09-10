@@ -65,7 +65,7 @@ gym.make('gym_navigation:Navigation-v0', track_id=1)
 gym.make('gym_navigation:NavigationGoal-v0', track_id=1)
 ```
 
-Currently only one track has been implemented in each environment.
+Currently, only one track has been implemented in each environment.
 
 Furthermore, some unit tests have been implemented in folder `tests` to verify the proper functioning of the code.
 
