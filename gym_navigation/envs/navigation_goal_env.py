@@ -163,20 +163,17 @@ class NavigationGoalEnv(Env):
         self.__pose = Pose(position, yaw)
 
     def __perform_action(self, action: int) -> None:
-        linear_shift_noise = gauss(0, self.__SHIFT_STANDARD_DEVIATION)
-        angular_shift_noise = gauss(0, self.__SHIFT_STANDARD_DEVIATION)
+        theta = gauss(0, self.__SHIFT_STANDARD_DEVIATION)
+        d = gauss(0, self.__SHIFT_STANDARD_DEVIATION)
 
         if action == self.__FORWARD:
-            d = self.__FORWARD_LINEAR_SHIFT + linear_shift_noise
-            theta = angular_shift_noise
+            d += self.__FORWARD_LINEAR_SHIFT
         elif action == self.__YAW_RIGHT:
-            d = self.__YAW_LINEAR_SHIFT + linear_shift_noise
-            theta = self.__YAW_ANGULAR_SHIFT + angular_shift_noise
+            d += self.__YAW_LINEAR_SHIFT
+            theta += self.__YAW_ANGULAR_SHIFT
         elif action == self.__YAW_LEFT:
-            d = self.__YAW_LINEAR_SHIFT + linear_shift_noise
-            theta = -self.__YAW_ANGULAR_SHIFT + angular_shift_noise
-        else:
-            raise ValueError(f'Invalid action {action} ({type(action)})')
+            d += self.__YAW_LINEAR_SHIFT
+            theta -= self.__YAW_ANGULAR_SHIFT
 
         self.__pose.shift(d, theta)
 
@@ -213,11 +210,7 @@ class NavigationGoalEnv(Env):
             self.__ranges[i] = min_distance + sensor_noise
 
     def __collision_occurred(self) -> bool:
-        for range_ in self.__ranges:
-            if range_ < self.__COLLISION_THRESHOLD:
-                return True
-
-        return False
+        return (self.__ranges < self.__COLLISION_THRESHOLD).any()
 
     def reset(self) -> List[float]:
         plt.close()
@@ -241,8 +234,8 @@ class NavigationGoalEnv(Env):
         return observation
 
     def step(self, action: int) -> Tuple[List[float], int, bool, List[str]]:
-        assert self.action_space.contains(
-            action), f'Invalid action {action} ({type(action)})'
+        if not self.action_space.contains(action):
+            raise ValueError(f'Invalid action {action} ({type(action)})')
 
         self.__perform_action(action)
 
