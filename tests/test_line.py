@@ -64,4 +64,3 @@ class TestLine:
     def test_correct_m_and_b_horizontal_line(self):
         line = Line(Point(0, 2), Point(10, 2))
         assert line.m == 0 and line.b == 2
-
