@@ -7,16 +7,18 @@ class Line:
     def __init__(self, start: Point, end: Point) -> None:
         self.start = start
         self.end = end
-        try:
-            self.m = (self.start.y - self.end.y) / (self.start.x - self.end.x)
-            self.b = self.start.y - self.m * self.start.x
-        except ZeroDivisionError:
+        if self.start.x == self.end.x:  # Vertical line
+            self.m = 0
+            self.b = None
+        elif self.start.y == self.end.y:  # Horizontal line
             self.m = 0
             self.b = self.start.y
+        else:
+            self.m = (self.start.y - self.end.y) / (self.start.x - self.end.x)
+            self.b = self.start.y - self.m * self.start.x
 
     def get_intersection(self, other) -> Optional[Point]:
-        if self.m == other.m:
-            # Parallel lines
+        if self.m == other.m:  # Parallel lines
             return None
         elif self.start.x == self.end.x:
             x = self.start.x
@@ -51,6 +53,3 @@ class Line:
     def __eq__(self, other) -> bool:
         return (self.start == other.start and self.end == other.end or
                 self.start == other.end and self.end == other.start)
-
-    def __str__(self) -> str:
-        return f'Line({self.start}, {self.end}, {self.m}, {self.b})'

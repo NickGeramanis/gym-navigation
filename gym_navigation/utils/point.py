@@ -11,6 +11,3 @@ class Point:
 
     def __eq__(self, other) -> bool:
         return isclose(self.x, other.x) and isclose(self.y, other.y)
-
-    def __str__(self) -> str:
-        return f'Point({self.x}, {self.y})'

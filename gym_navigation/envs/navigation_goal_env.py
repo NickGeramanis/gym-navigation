@@ -63,10 +63,10 @@ class NavigationGoalEnv(Env):
     __SPAWN_AREAS = (__SPAWN_AREA1,)
 
     def __init__(self, track_id: int = 1) -> None:
-        try:
+        if track_id in range(1, len(self.__TRACKS)+1):
             self.__track = self.__TRACKS[track_id - 1]
             self.__spawn_area = self.__SPAWN_AREAS[track_id - 1]
-        except IndexError:
+        else:
             raise ValueError(f'Invalid track id {track_id} ({type(track_id)})')
 
         self.__ranges = np.empty(self.__N_MEASUREMENTS)

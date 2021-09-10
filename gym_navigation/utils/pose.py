@@ -54,6 +54,3 @@ class Pose:
     def __eq__(self, other) -> bool:
         return (self.position == other.position
                 and isclose(self.yaw, other.yaw))
-
-    def __str__(self) -> str:
-        return f'Pose({self.position}, {self.yaw})'
