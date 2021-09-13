@@ -192,8 +192,8 @@ class NavigationEnv(Env):
             y_range = (scan.start.y, scan.end.y)
             plt.plot(x_range, y_range, 'y')
 
-        for __scan_intersection in self.__scan_intersections:
-            plt.plot(__scan_intersection.x, __scan_intersection.y, 'co')
+        for scan_intersection in self.__scan_intersections:
+            plt.plot(scan_intersection.x, scan_intersection.y, 'co')
 
         plt.plot(self.__pose.position.x, self.__pose.position.y, 'ro')
 
