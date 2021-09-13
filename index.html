@@ -1,115 +1,119 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+<head>
+    <meta content="width=device-width, initial-scale=1" name="viewport"/>
     <title>Navigation Environment for OpenAI Gym</title>
-    <link rel="stylesheet" href="style.css"</link>
-  </head>
+    <link href="style.css" rel="stylesheet">
+</head>
 
-  <body>
-    <div class="sidenav">
-      <a href="#home">Home</a>
-      <a href="#description">Description</a>
-      <a href="#gettingStarted">Getting Started</a>
-      <a href="#usage">Usage</a>
-      <a href="#about">About</a>
-    </div>
-    <div class="main">
-      <h1 id="home">Navigation Environment for <a href="https://gym.openai.com/">OpenAI Gym</a></h1>
-      <a href="https://github.com/NickGeramanis/denoising-inpainting-lbp">
-        <img
-          src="images/github.png"
-          alt="GitHub image"
-          style="width: 15%; height: 15%"
-        />
-      </a>
-      <h2>
+<body>
+<div class="sidenav">
+    <a href="#home">Home</a>
+    <a href="#description">Description</a>
+    <a href="#gettingStarted">Getting Started</a>
+    <a href="#usage">Usage</a>
+    <a href="#about">About</a>
+</div>
+<div class="main">
+    <h1 id="home">Navigation Environment for <a href="https://gym.openai.com/">OpenAI
+        Gym</a></h1>
+    <a href="https://github.com/NickGeramanis/gym-navigation">
+        <img alt="GitHub image" src="images/github.png"
+             style="width: 15%; height: 15%"/>
+    </a>
+    <h2>
         The navigation environment is a single-agent domain featuring discrete
         action-space and continuous state-space. It is a simulation of the
         autonomous navigation problem in robotics.
-      </h2>
-      <h3 id="description">Description</h3>
-      <p>The environment provides two tasks:</p>
-      <h4>Navigation</h4>
-      <p>
-        The goal of this environment is to navigate a robot on a track without crashing
-        into the walls. Initially, the robot is placed randomly into the track but at a
-        safe distance from the walls. The state-space consists of 5 range measurements.
-        The action-space consists of 3 actions (move_forward, rotate_left,
-        rotate_right). Furthermore, both actions and states have additive white
-        Gaussian noise. The robot is rewarded +5 for moving forward and -0.5 for
-        rotating. If the robot crashes into the wall it is penalized with -200.
-      </p>
-      <img src="images/navigation_env.png" alt="Navigation environment" />
-      <h4>NavigationGoal</h4>
-      <p>
-        The goal of this environment is to navigate a robot to reach a goal location
-        while avoiding the obstacles in the track. Initially, the robot is placed
-        randomly into the track but at a safe distance from the obstacles. Both the
-        goal and the obstacles change location in every episode. The state-space
-        consists of 5 range measurements plus the distance and angle from the goal. The
-        action-space consists of 3 actions (move_forward, rotate_left, rotate_right).
-        Furthermore, both actions and states have additive white Gaussian noise. The
-        robot is rewarded +200 for reaching the goal and -200 for crashing. Moreover,
-        after each time step, the robot is rewarded or penalized proportionally to the
-        difference between the current and previous step distances from the goal.
-      </p>
-      <img
-        src="images/navigation_goal_env.png"
-        alt="NavigationGoal environment"
-      />
-      <h3 id="gettingStarted">Getting Started</h3>
-      <h4>Prerequisites</h4>
-      <p>The package was implemented and tested with Python 3.8 but previous versions
-        can also be used.</p>
-      <p>The following libraries need to be installed:</p>
-      <ul>
+    </h2>
+    <h3 id="description">Description</h3>
+    <p>The environment provides two tasks:</p>
+    <h4>Navigation</h4>
+    <p>
+        The goal of this environment is to navigate a robot on a track without
+        crashing into the walls. Initially, the robot is placed randomly into
+        the track but at a safe distance from the walls. The state-space
+        consists of 5 range measurements. The action-space consists of 3
+        actions (move_forward, rotate_left, rotate_right). Furthermore, both
+        actions and states have additive white Gaussian noise. The robot is
+        rewarded +5 for moving forward and -0.5 for rotating. If the robot
+        crashes into the wall it is penalized with -200.
+    </p>
+    <img alt="Navigation environment" src="images/navigation_env.png"/>
+    <h4>NavigationGoal</h4>
+    <p>
+        The goal of this environment is to navigate a robot to reach a goal
+        location while avoiding the obstacles in the track. Initially, the
+        robot is placed randomly into the track but at a safe distance from the
+        obstacles. Both the goal and the obstacles change location in every
+        episode. The state-space consists of 5 range measurements plus the
+        distance and angle from the goal. The action-space consists of 3
+        actions (move_forward, rotate_left, rotate_right). Furthermore, both
+        actions and states have additive white Gaussian noise. The robot is
+        rewarded +200 for reaching the goal and -200 for crashing. Moreover,
+        after each time step, the robot is rewarded or penalized proportionally
+        to the difference between the current and previous step distances from
+        the goal.
+    </p>
+    <img alt="NavigationGoal environment"
+         src="images/navigation_goal_env.png"/>
+    <h3 id="gettingStarted">Getting Started</h3>
+    <h4>Prerequisites</h4>
+    <p>
+        The package was implemented and tested with Python 3.8 but previous
+        versions
+        can also be used.
+    </p>
+    <p>The following libraries need to be installed:</p>
+    <ul>
         <li>NumPy</li>
         <li>Matplotlib</li>
         <li>OpenAI Gym</li>
-      </ul>
-      <h4 id="installation">Installation</h4>
-      <p>Install the package with:</p>
-      <code>
+    </ul>
+    <h4 id="installation">Installation</h4>
+    <p>Install the package with:</p>
+    <code>
         git clone https://github.com/NickGeramanis/gym-navigation <br>
         cd gym-navigation <br>
         pip3 install -e . <br>
-      </code>
-      <h3 id="usage">Usage</h3>
-      <p>
+    </code>
+    <h3 id="usage">Usage</h3>
+    <p>
         You can use these environments in order to test and compare different
         reinforcement learning algorithms.
-      </p>
-      <p>You can create an instance of the environment with:</p>
-      <code>
+    </p>
+    <p>You can create an instance of the environment with:</p>
+    <code>
         import gym <br>
         <br>
         # Navigation Environment <br>
         env = gym.make('gym_navigation:Navigation-v0', track_id=1) <br>
-      </code>
-      <code>
+    </code>
+    <code>
         import gym <br>
         <br>
         # NavigationGoal Environment <br>
         env = gym.make('gym_navigation:NavigationGoal-v0', track_id=1) <br>
-      </code>
-      <p>Currently, only one track has been implemented in each environment.</p>
-      <p>
-        Furthermore, some unit tests have been implemented in folder "tests" to
-        verify the proper functioning of the code.
-      </p>
-      <h3 id="about">About</h3>
-      <h4>Status</h4>
-      <p>Under maintenance.</p>
-      <h4>License</h4>
-      <p>
-        Distributed under the GPL-3.0 License. See "LICENSE" for more
-        information.
-      </p>
-      <h4>Authors</h4>
-      <a href="https://www.linkedin.com/in/nikolaos-geramanis"
-        >Nick Geramanis</a
-      >
-    </div>
-  </body>
+    </code>
+    <p>Currently, only one track has been implemented in each environment.</p>
+    <p>
+        Furthermore, some unit tests have been implemented in folder
+        <file>tests</file>
+        to verify the proper functioning of the code.
+    </p>
+    <h3 id="about">About</h3>
+    <h4>Status</h4>
+    <p>Under maintenance.</p>
+    <h4>License</h4>
+    <p>
+        Distributed under the GPL-3.0 License. See
+        <file>LICENSE</file>
+        for more information.
+    </p>
+    <h4>Authors</h4>
+    <a href="https://www.linkedin.com/in/nikolaos-geramanis"
+    >Nick Geramanis</a
+    >
+</div>
+</body>
 </html>

@@ -72,3 +72,9 @@ body {
   display: block;
   background-color: lightgrey;
 }
+.main file {
+  font-size: 18px;
+  font-style: italic;
+  padding: 8px;
+  background-color: lightgrey;
+}
