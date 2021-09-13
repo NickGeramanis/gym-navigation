@@ -81,8 +81,14 @@ You can create an instance of the environment with the following commands:
 ```python
 import gym
 
+# Navigation Environment
 env = gym.make('gym_navigation:Navigation-v0', track_id=1)
-# or
+```
+
+```python
+import gym
+
+# NavigationGoal Environment
 env = gym.make('gym_navigation:NavigationGoal-v0', track_id=1)
 ```
 
