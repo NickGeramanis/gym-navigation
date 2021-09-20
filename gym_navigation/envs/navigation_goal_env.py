@@ -1,18 +1,20 @@
-from copy import copy, deepcopy
-from math import pi, inf
-from random import choice, gauss, uniform
+import copy
+import math
+import random
 from typing import List, Tuple
 
 import matplotlib.pyplot as plt
 import numpy as np
 from gym import spaces, Env
 
-from gym_navigation.utils.line import Line
+from gym_navigation.utils.line import Line, NoIntersection
 from gym_navigation.utils.point import Point
 from gym_navigation.utils.pose import Pose
 
 
 class NavigationGoalEnv(Env):
+    metadata = {'render.modes': ["human"]}
+
     __N_ACTIONS = 3
     __FORWARD = 0
     __YAW_RIGHT = 1
@@ -33,11 +35,11 @@ class NavigationGoalEnv(Env):
     __GOAL_REWARD = 200
     __COLLISION_REWARD = -200
 
-    __SCAN_ANGLES = (-pi / 2, -pi / 4, 0, pi / 4, pi / 2)
+    __SCAN_ANGLES = (-math.pi / 2, -math.pi / 4, 0, math.pi / 4, math.pi / 2)
     __SCAN_RANGE_MAX = 30.0
     __SCAN_RANGE_MIN = 0.2
     __N_MEASUREMENTS = len(__SCAN_ANGLES)
-    __MAXIMUM_GOAL_DISTANCE = inf
+    __MAXIMUM_GOAL_DISTANCE = math.inf
     __N_OBSERVATIONS = __N_MEASUREMENTS + 2
 
     __N_OBSTACLES = 20
@@ -62,17 +64,27 @@ class NavigationGoalEnv(Env):
 
     __SPAWN_AREAS = (__SPAWN_AREA1,)
 
+    __track: Tuple[Line, ...]
+    __spawn_area: Tuple[Tuple[Tuple[float, float], Tuple[float, float]], ...]
+    __ranges: np.ndarray
+    __pose: Pose
+    __goal: Point
+    __obstacles: np.ndarray
+    __obstacles_centers: np.ndarray
+    __distance_from_goal: float
+    __scans: np.ndarray
+    __scan_intersections: np.ndarray
+    __action_space: spaces.Discrete
+    __observation_space: spaces.Box
+
     def __init__(self, track_id: int = 1) -> None:
         if track_id in range(1, len(self.__TRACKS) + 1):
             self.__track = self.__TRACKS[track_id - 1]
             self.__spawn_area = self.__SPAWN_AREAS[track_id - 1]
         else:
-            raise ValueError(f'Invalid track id {track_id} ({type(track_id)})')
+            raise ValueError(f"Invalid track id {track_id} ({type(track_id)})")
 
         self.__ranges = np.empty(self.__N_MEASUREMENTS)
-
-        self.__pose = None
-        self.__goal = None
 
         self.__obstacles = np.empty((self.__N_OBSTACLES, 4), dtype=Line)
         self.__obstacles_centers = np.empty(self.__N_OBSTACLES, dtype=Point)
@@ -82,27 +94,30 @@ class NavigationGoalEnv(Env):
         self.__scan_intersections = np.empty(self.__N_MEASUREMENTS,
                                              dtype=Point)
 
-        self.action_space = spaces.Discrete(self.__N_ACTIONS)
+        self.__action_space = spaces.Discrete(self.__N_ACTIONS)
 
         high = (self.__N_MEASUREMENTS * [self.__SCAN_RANGE_MAX]
                 + [self.__MAXIMUM_GOAL_DISTANCE]
-                + [pi])
+                + [math.pi])
         high = np.array(high, dtype=np.float32)
 
-        low = self.__N_MEASUREMENTS * [self.__SCAN_RANGE_MIN] + [0] + [-pi]
+        low = (self.__N_MEASUREMENTS * [self.__SCAN_RANGE_MIN]
+               + [0]
+               + [-math.pi])
         low = np.array(low, dtype=np.float32)
 
-        self.observation_space = spaces.Box(
-            low=low, high=high, shape=(self.__N_OBSERVATIONS,),
-            dtype=np.float32)
+        self.__observation_space = spaces.Box(low=low,
+                                              high=high,
+                                              shape=(self.__N_OBSERVATIONS,),
+                                              dtype=np.float32)
 
     def __init_obstacles(self) -> None:
         # Don't check for overlapping obstacles
         # in order to create strange shapes.
         for i in range(self.__N_OBSTACLES):
-            area = choice(self.__spawn_area)
-            x = uniform(area[0][0], area[0][1])
-            y = uniform(area[1][0], area[1][1])
+            area = random.choice(self.__spawn_area)
+            x = random.uniform(area[0][0], area[0][1])
+            y = random.uniform(area[1][0], area[1][1])
             obstacles_center = Point(x, y)
 
             self.__obstacles_centers[i] = obstacles_center
@@ -125,9 +140,9 @@ class NavigationGoalEnv(Env):
         done = False
         goal = None
         while not done:
-            area = choice(self.__spawn_area)
-            x = uniform(area[0][0], area[0][1])
-            y = uniform(area[1][0], area[1][1])
+            area = random.choice(self.__spawn_area)
+            x = random.uniform(area[0][0], area[0][1])
+            y = random.uniform(area[1][0], area[1][1])
             goal = Point(x, y)
             done = True
 
@@ -143,9 +158,9 @@ class NavigationGoalEnv(Env):
         done = False
         position = None
         while not done:
-            area = choice(self.__spawn_area)
-            x = uniform(area[0][0], area[0][1])
-            y = uniform(area[1][0], area[1][1])
+            area = random.choice(self.__spawn_area)
+            x = random.uniform(area[0][0], area[0][1])
+            y = random.uniform(area[1][0], area[1][1])
             position = Point(x, y)
             done = True
 
@@ -159,12 +174,12 @@ class NavigationGoalEnv(Env):
             if distance_from_goal < self.__MINIMUM_DISTANCE:
                 done = False
 
-        yaw = uniform(-pi, pi)
+        yaw = random.uniform(-math.pi, math.pi)
         self.__pose = Pose(position, yaw)
 
     def __perform_action(self, action: int) -> None:
-        theta = gauss(0, self.__SHIFT_STANDARD_DEVIATION)
-        d = gauss(0, self.__SHIFT_STANDARD_DEVIATION)
+        theta = random.gauss(0, self.__SHIFT_STANDARD_DEVIATION)
+        d = random.gauss(0, self.__SHIFT_STANDARD_DEVIATION)
 
         if action == self.__FORWARD:
             d += self.__FORWARD_LINEAR_SHIFT
@@ -181,22 +196,23 @@ class NavigationGoalEnv(Env):
         scan_poses = np.empty(self.__N_MEASUREMENTS, dtype=Pose)
 
         for i, scan_angle in enumerate(self.__SCAN_ANGLES):
-            scan_poses[i] = Pose(copy(self.__pose.position),
+            scan_poses[i] = Pose(copy.copy(self.__pose.position),
                                  self.__pose.yaw + scan_angle)
 
         for i, scan_pose in enumerate(scan_poses):
-            closest_intersection_pose = deepcopy(scan_pose)
+            closest_intersection_pose = copy.deepcopy(scan_pose)
             closest_intersection_pose.move(self.__SCAN_RANGE_MAX)
 
-            self.__scans[i] = Line(copy(scan_pose.position),
-                                   copy(closest_intersection_pose.position))
+            self.__scans[i] = Line(
+                copy.copy(scan_pose.position),
+                copy.copy(closest_intersection_pose.position))
 
             min_distance = self.__SCAN_RANGE_MAX
             walls = np.concatenate((self.__track, self.__obstacles.flatten()))
             for wall in walls:
-                intersection = self.__scans[i].get_intersection(wall)
-
-                if intersection is None:
+                try:
+                    intersection = self.__scans[i].get_intersection(wall)
+                except NoIntersection:
                     continue
 
                 distance = scan_pose.position.calculate_distance(intersection)
@@ -204,7 +220,7 @@ class NavigationGoalEnv(Env):
                     closest_intersection_pose.position = intersection
                     min_distance = distance
 
-            sensor_noise = gauss(0, self.__SENSOR_STANDARD_DEVIATION)
+            sensor_noise = random.gauss(0, self.__SENSOR_STANDARD_DEVIATION)
             closest_intersection_pose.move(sensor_noise)
             self.__scan_intersections[i] = closest_intersection_pose.position
             self.__ranges[i] = min_distance + sensor_noise
@@ -235,7 +251,7 @@ class NavigationGoalEnv(Env):
 
     def step(self, action: int) -> Tuple[List[float], int, bool, List[str]]:
         if not self.action_space.contains(action):
-            raise ValueError(f'Invalid action {action} ({type(action)})')
+            raise ValueError(f"Invalid action {action} ({type(action)})")
 
         self.__perform_action(action)
 
@@ -265,6 +281,9 @@ class NavigationGoalEnv(Env):
         return observation, reward, done, []
 
     def render(self, mode="human") -> None:
+        if mode != "human":
+            super().render(mode=mode)
+
         plt.clf()
 
         walls = np.concatenate((self.__track, self.__obstacles.flatten()))
@@ -291,3 +310,14 @@ class NavigationGoalEnv(Env):
 
     def close(self) -> None:
         plt.close()
+
+    def seed(self, seed=None):
+        return
+
+    @property
+    def action_space(self) -> spaces.Discrete:
+        return self.__action_space
+
+    @property
+    def observation(self) -> spaces.Box:
+        return self.__observation_space
