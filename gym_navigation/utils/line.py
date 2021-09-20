@@ -3,53 +3,94 @@ from typing import Optional
 from gym_navigation.utils.point import Point
 
 
-class Line:
-    def __init__(self, start: Point, end: Point) -> None:
-        self.start = start
-        self.end = end
-        if self.start.x == self.end.x:  # Vertical line
-            self.m = 0
-            self.b = None
-        elif self.start.y == self.end.y:  # Horizontal line
-            self.m = 0
-            self.b = self.start.y
-        else:
-            self.m = (self.start.y - self.end.y) / (self.start.x - self.end.x)
-            self.b = self.start.y - self.m * self.start.x
+class NoIntersection(Exception):
+    pass
 
-    def get_intersection(self, other) -> Optional[Point]:
-        if self.m == other.m:  # Parallel lines
-            return None
-        elif self.start.x == self.end.x:
-            x = self.start.x
+
+class Line:
+    __start: Point
+    __end: Point
+    __m: float
+    __b: Optional[float]
+
+    def __init__(self, start: Point, end: Point) -> None:
+        self.__start = start
+        self.__end = end
+        if start.x == end.x:  # Vertical line
+            self.__m = 0
+            self.__b = None
+        elif start.y == end.y:  # Horizontal line
+            self.__m = 0
+            self.__b = start.y
+        else:
+            self.__m = (start.y - end.y) / (start.x - end.x)
+            self.__b = start.y - self.__m * start.x
+
+    def get_intersection(self, other) -> Point:
+        if self.__m == other.m:  # Parallel lines
+            raise NoIntersection
+        elif self.__start.x == self.__end.x:
+            x = self.__start.x
             y = other.m * x + other.b
         elif other.start.x == other.end.x:
             x = other.start.x
-            y = self.m * x + self.b
-        elif self.start.y == self.end.y:
-            y = self.start.y
+            y = self.__m * x + self.__b
+        elif self.__start.y == self.__end.y:
+            y = self.__start.y
             x = (y - other.b) / other.m
         elif other.start.y == other.end.y:
             y = other.start.y
-            x = (y - self.b) / self.m
+            x = (y - self.__b) / self.__m
         else:
-            x = (self.b - other.b) / (other.m - self.m)
-            y = self.m * x + self.b
+            x = (self.__b - other.b) / (other.m - self.__m)
+            y = self.__m * x + self.__b
 
         intersection = Point(x, y)
 
         if self.contains(intersection) and other.contains(intersection):
             return intersection
 
-        return None
+        raise NoIntersection
 
     def contains(self, point: Point) -> bool:
-        contains_x = (min(self.start.x, self.end.x) <= point.x
-                      <= max(self.start.x, self.end.x))
-        contains_y = (min(self.start.y, self.end.y) <= point.y
-                      <= max(self.start.y, self.end.y))
+        contains_x = (min(self.__start.x, self.__end.x) <= point.x
+                      <= max(self.__start.x, self.__end.x))
+        contains_y = (min(self.__start.y, self.__end.y) <= point.y
+                      <= max(self.__start.y, self.__end.y))
         return contains_x and contains_y
 
     def __eq__(self, other) -> bool:
-        return (self.start == other.start and self.end == other.end or
-                self.start == other.end and self.end == other.start)
+        return (self.__start == other.start and self.__end == other.end
+                or self.__start == other.end and self.__end == other.start)
+
+    @property
+    def start(self) -> Point:
+        return self.__start
+
+    @start.setter
+    def start(self, start) -> None:
+        self.__start = start
+
+    @property
+    def end(self) -> Point:
+        return self.__end
+
+    @end.setter
+    def end(self, end) -> None:
+        self.__end = end
+
+    @property
+    def m(self) -> float:
+        return self.__m
+
+    @m.setter
+    def m(self, m) -> None:
+        self.__m = m
+
+    @property
+    def b(self) -> float:
+        return self.__b
+
+    @b.setter
+    def b(self, b) -> None:
+        self.__b = b
