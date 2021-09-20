@@ -13,7 +13,7 @@ from gym_navigation.utils.pose import Pose
 
 
 class NavigationGoalEnv(Env):
-    metadata = {'render.modes': ["human"]}
+    metadata = {'render.modes': ['human']}
 
     __N_ACTIONS = 3
     __FORWARD = 0
@@ -82,7 +82,7 @@ class NavigationGoalEnv(Env):
             self.__track = self.__TRACKS[track_id - 1]
             self.__spawn_area = self.__SPAWN_AREAS[track_id - 1]
         else:
-            raise ValueError(f"Invalid track id {track_id} ({type(track_id)})")
+            raise ValueError(f'Invalid track id {track_id} ({type(track_id)})')
 
         self.__ranges = np.empty(self.__N_MEASUREMENTS)
 
@@ -106,8 +106,7 @@ class NavigationGoalEnv(Env):
                + [-math.pi])
         low = np.array(low, dtype=np.float32)
 
-        self.__observation_space = spaces.Box(low=low,
-                                              high=high,
+        self.__observation_space = spaces.Box(low=low, high=high,
                                               shape=(self.__N_OBSERVATIONS,),
                                               dtype=np.float32)
 
@@ -251,7 +250,7 @@ class NavigationGoalEnv(Env):
 
     def step(self, action: int) -> Tuple[List[float], int, bool, List[str]]:
         if not self.action_space.contains(action):
-            raise ValueError(f"Invalid action {action} ({type(action)})")
+            raise ValueError(f'Invalid action {action} ({type(action)})')
 
         self.__perform_action(action)
 
@@ -280,8 +279,8 @@ class NavigationGoalEnv(Env):
 
         return observation, reward, done, []
 
-    def render(self, mode="human") -> None:
-        if mode != "human":
+    def render(self, mode='human') -> None:
+        if mode != 'human':
             super().render(mode=mode)
 
         plt.clf()
