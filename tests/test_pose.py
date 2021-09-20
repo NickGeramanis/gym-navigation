@@ -30,49 +30,43 @@ class TestLine:
         pose = Pose(Point(1, 2), 0)
 
         pose.move(1)
-        expected_pose = Pose(Point(1, 3), 0)
 
-        assert expected_pose == pose
+        assert pose == Pose(Point(1, 3), 0)
 
     def test_move_with_yaw_pi(self):
         pose = Pose(Point(1, 2), math.pi)
 
         pose.move(1)
-        expected_pose = Pose(Point(1, 1), math.pi)
 
-        assert expected_pose == pose
+        assert pose == Pose(Point(1, 1), math.pi)
 
     def test_move_with_positive_yaw(self):
         pose = Pose(Point(1, 2), math.pi / 4)
 
         pose.move(math.sqrt(2))
-        expected_pose = Pose(Point(2, 3), math.pi / 4)
 
-        assert expected_pose == pose
+        assert pose == Pose(Point(2, 3), math.pi / 4)
 
     def test_move_with_negative_yaw(self):
         pose = Pose(Point(1, 2), -math.pi / 4)
 
         pose.move(math.sqrt(2))
-        expected_pose = Pose(Point(0, 3), -math.pi / 4)
 
-        assert expected_pose == pose
+        assert pose == Pose(Point(0, 3), -math.pi / 4)
 
     def test_shift(self):
         pose = Pose(Point(1, 2), math.pi / 4)
 
         pose.shift(math.sqrt(2), math.pi / 4)
-        expected_pose = Pose(Point(2, 3), math.pi / 2)
 
-        assert expected_pose == pose
+        assert pose == Pose(Point(2, 3), math.pi / 2)
 
     def test_rotate(self):
         pose = Pose(Point(1, 2), math.pi / 4)
 
         pose.rotate(math.pi / 4)
-        expected_pose = Pose(Point(1, 2), math.pi / 2)
 
-        assert expected_pose == pose
+        assert pose == Pose(Point(1, 2), math.pi / 2)
 
     def test_calculate_angle_difference_positive(self):
         pose = Pose(Point(1, 2), math.pi / 4)
