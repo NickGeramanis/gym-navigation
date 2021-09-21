@@ -3,3 +3,8 @@ numpy
 matplotlib
 pytest
 coverage
+pylint
+mypy
+pycodestyle
+autopep8
+isort

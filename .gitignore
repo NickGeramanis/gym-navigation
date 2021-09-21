@@ -1,9 +1,8 @@
 **/__pycache__
 venv/
 **/.pytest_cache
-.idea/
+**/.mypy_cache
+.vscode/
 *.log
 .coverage
-/coverage-reports
 /gym_navigation.egg-info
-scripts/
