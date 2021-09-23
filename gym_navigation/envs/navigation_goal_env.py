@@ -318,5 +318,5 @@ class NavigationGoalEnv(Env):
         return self.__action_space
 
     @property
-    def observation(self) -> spaces.Box:
+    def observation_space(self) -> spaces.Box:
         return self.__observation_space
