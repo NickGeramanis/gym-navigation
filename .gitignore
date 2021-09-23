@@ -1,6 +1,6 @@
 *
 */
 !.gitignore
-index.html
-style.css
-images/
+!index.html
+!style.css
+!images/
