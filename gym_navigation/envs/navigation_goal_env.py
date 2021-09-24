@@ -262,7 +262,7 @@ class NavigationGoalEnv(Env):
         observation.append(distance_from_goal)
         observation.append(angle_from_goal)
 
-        reward = 0.0
+        reward: float
         if self.__collision_occurred():
             reward = self.__COLLISION_REWARD
             done = True
@@ -308,9 +308,6 @@ class NavigationGoalEnv(Env):
 
     def close(self) -> None:
         plt.close()
-
-    def seed(self, seed=None):
-        return
 
     @property
     def action_space(self) -> spaces.Discrete:

@@ -219,9 +219,6 @@ class NavigationEnv(Env):
     def close(self) -> None:
         plt.close()
 
-    def seed(self, seed=None):
-        return
-
     @property
     def action_space(self) -> spaces.Discrete:
         return self.__action_space
