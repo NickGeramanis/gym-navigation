@@ -238,7 +238,7 @@ class NavigationGoalEnv(Env):
             self.__goal)
         angle_from_goal = self.__pose.calculate_angle_difference(self.__goal)
 
-        observation = list(self.__ranges.copy())
+        observation = list(self.__ranges)
         observation.append(distance_from_goal)
         observation.append(angle_from_goal)
 
@@ -258,7 +258,7 @@ class NavigationGoalEnv(Env):
             self.__goal)
         angle_from_goal = self.__pose.calculate_angle_difference(self.__goal)
 
-        observation = list(self.__ranges[:])
+        observation = list(self.__ranges)
         observation.append(distance_from_goal)
         observation.append(angle_from_goal)
 

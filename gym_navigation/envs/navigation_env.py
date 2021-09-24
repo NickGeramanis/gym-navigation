@@ -176,7 +176,7 @@ class NavigationEnv(Env):
         self.__perform_action(action)
 
         self.__update_scan()
-        observation = list(self.__ranges.copy())
+        observation = list(self.__ranges)
 
         done = self.__collision_occurred()
         reward = 0.0
