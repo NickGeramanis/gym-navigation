@@ -4,41 +4,50 @@ from gym_navigation.utils.point import Point
 
 
 class Pose:
+    """The pose of an object in Cartesian plane."""
     __position: Point
     __yaw: float
 
     def __init__(self, position: Point, yaw: float) -> None:
         self.__position = position
         self.__yaw = yaw
-        # yaw is measured from the y axis and E [-pi, pi]
         self.__correct_yaw()
 
     def move(self, d: float) -> None:
+        """Move the pose by d."""
         if self.__yaw == 0:
             self.__position.y += d
         elif abs(self.__yaw) == math.pi:
             self.__position.y -= d
         else:
-            m = math.tan(math.pi / 2 - self.__yaw)
+            slope = math.tan(math.pi / 2 - self.__yaw)
             starting_x = self.__position.x
             if self.__yaw < 0:
-                self.__position.x -= math.sqrt(d ** 2 / (m ** 2 + 1))
+                self.__position.x -= math.sqrt(
+                    d ** 2 / (slope ** 2 + 1))
             else:
-                self.__position.x += math.sqrt(d ** 2 / (m ** 2 + 1))
-            self.__position.y -= m * (starting_x - self.__position.x)
+                self.__position.x += math.sqrt(
+                    d ** 2 / (slope ** 2 + 1))
+            self.__position.y -= slope * (starting_x - self.__position.x)
 
     def rotate(self, theta: float) -> None:
+        """Rotate the yaw of the object by theta."""
         self.__yaw += theta
         self.__correct_yaw()
 
     def shift(self, d: float, theta: float) -> None:
-        # Do we move first and then rotate or the other way around?
+        """A shift is a movement followed by a rotation.
+        In this implementation we move first and then rotate.
+        """
         self.move(d)
         self.rotate(theta)
 
-    def calculate_angle_difference(self, other: Point) -> float:
-        vector1 = Point(other.x - self.__position.x,
-                        other.y - self.__position.y)
+    def calculate_angle_difference(self, target: Point) -> float:
+        """Calculate the angle and the direction (+ or -) that the
+        object need to ratate in order to face the target point.
+        """
+        vector1 = Point(target.x - self.__position.x,
+                        target.y - self.__position.y)
 
         pose2 = Pose(Point(self.__position.x, self.__position.y), self.__yaw)
         pose2.move(1)
@@ -62,6 +71,7 @@ class Pose:
 
     @property
     def position(self) -> Point:
+        """The position of the object in the Cartesian plane."""
         return self.__position
 
     @position.setter
@@ -70,8 +80,14 @@ class Pose:
 
     @property
     def yaw(self) -> float:
+        """The rotation (yaw) of the object.
+        It is messearued from the y axis and E [-pi, pi].
+        Positive yaw means clockwise direction while
+        negative yaw means counterclockwise direction.
+        """
         return self.__yaw
 
     @yaw.setter
     def yaw(self, yaw) -> None:
         self.__yaw = yaw
+        self.__correct_yaw()

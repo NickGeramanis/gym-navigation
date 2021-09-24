@@ -1,3 +1,5 @@
+import math
+
 import pytest
 
 from gym_navigation.utils.line import Line, NoIntersection
@@ -73,7 +75,7 @@ class TestLine:
     def test_correct_m_and_b_vertical_line(self):
         line = Line(Point(2, 0), Point(2, 10))
 
-        assert line.m == 0 and line.b is None
+        assert line.m == 0 and line.b is math.inf
 
     def test_correct_m_and_b_horizontal_line(self):
         line = Line(Point(0, 2), Point(10, 2))

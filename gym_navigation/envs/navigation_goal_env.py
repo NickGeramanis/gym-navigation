@@ -1,11 +1,11 @@
 import copy
 import math
 import random
-from typing import List, Tuple
+from typing import Dict, List, Tuple
 
 import matplotlib.pyplot as plt
 import numpy as np
-from gym import spaces, Env
+from gym import Env, spaces
 
 from gym_navigation.utils.line import Line, NoIntersection
 from gym_navigation.utils.point import Point
@@ -13,7 +13,7 @@ from gym_navigation.utils.pose import Pose
 
 
 class NavigationGoalEnv(Env):
-    metadata = {'render.modes': ['human']}
+    __metadata = {'render.modes': ['human']}
 
     __N_ACTIONS = 3
     __FORWARD = 0
@@ -96,15 +96,15 @@ class NavigationGoalEnv(Env):
 
         self.__action_space = spaces.Discrete(self.__N_ACTIONS)
 
-        high = (self.__N_MEASUREMENTS * [self.__SCAN_RANGE_MAX]
-                + [self.__MAXIMUM_GOAL_DISTANCE]
-                + [math.pi])
-        high = np.array(high, dtype=np.float32)
+        high = np.array(self.__N_MEASUREMENTS * [self.__SCAN_RANGE_MAX]
+                        + [self.__MAXIMUM_GOAL_DISTANCE]
+                        + [math.pi],
+                        dtype=np.float32)
 
-        low = (self.__N_MEASUREMENTS * [self.__SCAN_RANGE_MIN]
-               + [0]
-               + [-math.pi])
-        low = np.array(low, dtype=np.float32)
+        low = np.array(self.__N_MEASUREMENTS * [self.__SCAN_RANGE_MIN]
+                       + [0]
+                       + [-math.pi],
+                       dtype=np.float32)
 
         self.__observation_space = spaces.Box(low=low, high=high,
                                               shape=(self.__N_OBSERVATIONS,),
@@ -137,7 +137,6 @@ class NavigationGoalEnv(Env):
 
     def __init_goal(self) -> None:
         done = False
-        goal = None
         while not done:
             area = random.choice(self.__spawn_area)
             x = random.uniform(area[0][0], area[0][1])
@@ -155,7 +154,6 @@ class NavigationGoalEnv(Env):
 
     def __init_pose(self) -> None:
         done = False
-        position = None
         while not done:
             area = random.choice(self.__spawn_area)
             x = random.uniform(area[0][0], area[0][1])
@@ -225,7 +223,7 @@ class NavigationGoalEnv(Env):
             self.__ranges[i] = min_distance + sensor_noise
 
     def __collision_occurred(self) -> bool:
-        return (self.__ranges < self.__COLLISION_THRESHOLD).any()
+        return bool((self.__ranges < self.__COLLISION_THRESHOLD).any())
 
     def reset(self) -> List[float]:
         plt.close()
@@ -248,7 +246,7 @@ class NavigationGoalEnv(Env):
 
         return observation
 
-    def step(self, action: int) -> Tuple[List[float], int, bool, List[str]]:
+    def step(self, action: int) -> Tuple[List[float], float, bool, List[str]]:
         if not self.action_space.contains(action):
             raise ValueError(f'Invalid action {action} ({type(action)})')
 
@@ -264,6 +262,7 @@ class NavigationGoalEnv(Env):
         observation.append(distance_from_goal)
         observation.append(angle_from_goal)
 
+        reward = 0.0
         if self.__collision_occurred():
             reward = self.__COLLISION_REWARD
             done = True
@@ -320,3 +319,7 @@ class NavigationGoalEnv(Env):
     @property
     def observation_space(self) -> spaces.Box:
         return self.__observation_space
+
+    @property
+    def metadata(self) -> Dict:
+        return self.__metadata

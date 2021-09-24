@@ -1,6 +1,6 @@
 import math
 
-from gym_navigation.utils.pose import Point
+from gym_navigation.utils.point import Point
 
 
 class TestPoint:

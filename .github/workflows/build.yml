@@ -28,8 +28,6 @@ jobs:
       - name: Show coverage report
         run: coverage report
       - name: Run linter
-        run: pylint gym_navigation
+        run: flake8 gym_navigation
       - name: Run type checker
         run: mypy --ignore-missing-imports gym_navigation
-      - name: Run coding style checker
-        run: pycodestyle gym_navigation

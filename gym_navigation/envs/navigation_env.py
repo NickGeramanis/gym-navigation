@@ -1,11 +1,11 @@
 import copy
 import math
 import random
-from typing import List, Tuple
+from typing import Dict, List, Tuple
 
 import matplotlib.pyplot as plt
 import numpy as np
-from gym import spaces, Env
+from gym import Env, spaces
 
 from gym_navigation.utils.line import Line, NoIntersection
 from gym_navigation.utils.point import Point
@@ -13,7 +13,7 @@ from gym_navigation.utils.pose import Pose
 
 
 class NavigationEnv(Env):
-    metadata = {'render.modes': ['human']}
+    __metadata = {'render.modes': ['human']}
 
     __N_ACTIONS = 3
     __FORWARD = 0
@@ -157,7 +157,7 @@ class NavigationEnv(Env):
             self.__ranges[i] = min_distance + sensor_noise
 
     def __collision_occurred(self) -> bool:
-        return (self.__ranges < self.__COLLISION_THRESHOLD).any()
+        return bool((self.__ranges < self.__COLLISION_THRESHOLD).any())
 
     def reset(self) -> List[float]:
         plt.close()
@@ -179,13 +179,13 @@ class NavigationEnv(Env):
         observation = list(self.__ranges.copy())
 
         done = self.__collision_occurred()
-        reward = 0
+        reward = 0.0
 
         if done:
             reward = self.__COLLISION_REWARD
         elif action == self.__FORWARD:
             reward = self.__FORWARD_REWARD
-        elif action == self.__YAW_LEFT or action == self.__YAW_RIGHT:
+        elif action in (self.__YAW_LEFT, self.__YAW_RIGHT):
             reward = self.__YAW_REWARD
 
         return observation, reward, done, []
@@ -229,3 +229,7 @@ class NavigationEnv(Env):
     @property
     def observation_space(self) -> spaces.Box:
         return self.__observation_space
+
+    @property
+    def metadata(self) -> Dict:
+        return self.__metadata

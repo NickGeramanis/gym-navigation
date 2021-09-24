@@ -1,24 +1,28 @@
-from typing import Optional
+import math
 
 from gym_navigation.utils.point import Point
 
 
 class NoIntersection(Exception):
+    """An exception that is used when there is no intersection
+    between two lines.
+    """
     pass
 
 
 class Line:
+    """A line (line segment) in Cartesian plane."""
     __start: Point
     __end: Point
     __m: float
-    __b: Optional[float]
+    __b: float
 
     def __init__(self, start: Point, end: Point) -> None:
         self.__start = start
         self.__end = end
         if start.x == end.x:  # Vertical line
             self.__m = 0
-            self.__b = None
+            self.__b = math.inf
         elif start.y == end.y:  # Horizontal line
             self.__m = 0
             self.__b = start.y
@@ -27,9 +31,13 @@ class Line:
             self.__b = start.y - self.__m * start.x
 
     def get_intersection(self, other) -> Point:
+        """Get the intersection point between two lines.
+        Raise an error if it does not exist.
+        """
         if self.__m == other.m:  # Parallel lines
             raise NoIntersection
-        elif self.__start.x == self.__end.x:
+
+        if self.__start.x == self.__end.x:
             x = self.__start.x
             y = other.m * x + other.b
         elif other.start.x == other.end.x:
@@ -53,6 +61,7 @@ class Line:
         raise NoIntersection
 
     def contains(self, point: Point) -> bool:
+        """Calculate if the line contains a given point."""
         contains_x = (min(self.__start.x, self.__end.x) <= point.x
                       <= max(self.__start.x, self.__end.x))
         contains_y = (min(self.__start.y, self.__end.y) <= point.y
@@ -65,6 +74,7 @@ class Line:
 
     @property
     def start(self) -> Point:
+        """The start point of the line."""
         return self.__start
 
     @start.setter
@@ -73,6 +83,7 @@ class Line:
 
     @property
     def end(self) -> Point:
+        """The end point of the line."""
         return self.__end
 
     @end.setter
@@ -81,10 +92,12 @@ class Line:
 
     @property
     def m(self) -> float:
+        """The start point of the line."""
         return self.__m
 
     @m.setter
     def m(self, m) -> None:
+        """The m (gradient) coefficient of the line equation."""
         self.__m = m
 
     @property
@@ -93,4 +106,5 @@ class Line:
 
     @b.setter
     def b(self, b) -> None:
+        """The b coefficient of the line equation."""
         self.__b = b

@@ -1,6 +1,7 @@
 import math
 
-from gym_navigation.utils.pose import Pose, Point
+from gym_navigation.utils.point import Point
+from gym_navigation.utils.pose import Pose
 
 
 class TestLine:
