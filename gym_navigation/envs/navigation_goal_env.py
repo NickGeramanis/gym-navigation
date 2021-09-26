@@ -106,7 +106,8 @@ class NavigationGoalEnv(Env):
                        + [-math.pi],
                        dtype=np.float32)
 
-        self.__observation_space = spaces.Box(low=low, high=high,
+        self.__observation_space = spaces.Box(low=low,
+                                              high=high,
                                               shape=(self.__N_OBSERVATIONS,),
                                               dtype=np.float32)
 

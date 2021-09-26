@@ -3,6 +3,7 @@ import math
 
 class Point:
     """A point in Cartesian plane."""
+
     __x: float
     __y: float
 

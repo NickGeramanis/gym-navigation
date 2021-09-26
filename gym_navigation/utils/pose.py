@@ -5,6 +5,7 @@ from gym_navigation.utils.point import Point
 
 class Pose:
     """The pose of an object in Cartesian plane."""
+
     __position: Point
     __yaw: float
 
@@ -20,15 +21,14 @@ class Pose:
         elif abs(self.__yaw) == math.pi:
             self.__position.y -= d
         else:
-            slope = math.tan(math.pi / 2 - self.__yaw)
+            m = math.tan(math.pi / 2 - self.__yaw)
             starting_x = self.__position.x
             if self.__yaw < 0:
                 self.__position.x -= math.sqrt(
-                    d ** 2 / (slope ** 2 + 1))
+                    d ** 2 / (m ** 2 + 1))
             else:
-                self.__position.x += math.sqrt(
-                    d ** 2 / (slope ** 2 + 1))
-            self.__position.y -= slope * (starting_x - self.__position.x)
+                self.__position.x += math.sqrt(d ** 2 / (m ** 2 + 1))
+            self.__position.y -= m * (starting_x - self.__position.x)
 
     def rotate(self, theta: float) -> None:
         """Rotate the yaw of the object by theta."""
@@ -36,15 +36,19 @@ class Pose:
         self.__correct_yaw()
 
     def shift(self, d: float, theta: float) -> None:
-        """A shift is a movement followed by a rotation.
+        """Execute a shift.
+
+        A shift is a movement followed by a rotation.
         In this implementation we move first and then rotate.
         """
         self.move(d)
         self.rotate(theta)
 
     def calculate_angle_difference(self, target: Point) -> float:
-        """Calculate the angle and the direction (+ or -) that the
-        object need to ratate in order to face the target point.
+        """Calculate the angle difference from a point.
+
+        This is the angle and the direction (+ or -) that the
+        object need to rotate in order to face the target point.
         """
         vector1 = Point(target.x - self.__position.x,
                         target.y - self.__position.y)
@@ -81,6 +85,7 @@ class Pose:
     @property
     def yaw(self) -> float:
         """The rotation (yaw) of the object.
+
         It is messearued from the y axis and E [-pi, pi].
         Positive yaw means clockwise direction while
         negative yaw means counterclockwise direction.

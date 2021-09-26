@@ -4,14 +4,12 @@ from gym_navigation.utils.point import Point
 
 
 class NoIntersection(Exception):
-    """An exception that is used when there is no intersection
-    between two lines.
-    """
-    pass
+    """Exception when there is no intersection between two lines."""
 
 
 class Line:
     """A line (line segment) in Cartesian plane."""
+
     __start: Point
     __end: Point
     __m: float
@@ -32,6 +30,7 @@ class Line:
 
     def get_intersection(self, other) -> Point:
         """Get the intersection point between two lines.
+
         Raise an error if it does not exist.
         """
         if self.__m == other.m:  # Parallel lines
@@ -92,19 +91,18 @@ class Line:
 
     @property
     def m(self) -> float:
-        """The start point of the line."""
+        """The gradient coefficient of the line equation."""
         return self.__m
 
     @m.setter
     def m(self, m) -> None:
-        """The m (gradient) coefficient of the line equation."""
         self.__m = m
 
     @property
     def b(self) -> float:
+        """The b coefficient of the line equation."""
         return self.__b
 
     @b.setter
     def b(self, b) -> None:
-        """The b coefficient of the line equation."""
         self.__b = b

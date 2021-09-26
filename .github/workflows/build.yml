@@ -24,10 +24,10 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
       - name: Run tests
-        run: coverage run --branch --source=gym_navigation --omit=**/__init__.py -m pytest
+        run: coverage run --branch --source=gym_navigation/ --omit=**/__init__.py -m pytest
       - name: Show coverage report
         run: coverage report
       - name: Run linter
-        run: flake8 gym_navigation
+        run: flake8 --exclude **/__init__.py --max-complexity 10 gym_navigation/
       - name: Run type checker
-        run: mypy --ignore-missing-imports gym_navigation
+        run: mypy --ignore-missing-imports gym_navigation/
