@@ -6,4 +6,5 @@ venv/
 gym_navigation.egg-info/
 *.log
 coverage/
+scripts/
 .coverage
