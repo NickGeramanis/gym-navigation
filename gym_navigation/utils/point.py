@@ -1,4 +1,5 @@
 import math
+from typing import Any
 
 
 class Point:
@@ -15,8 +16,9 @@ class Point:
         """Calculate the Euclidean distance between two points."""
         return math.sqrt((self.__x - other.x) ** 2 + (self.__y - other.y) ** 2)
 
-    def __eq__(self, other) -> bool:
-        return (math.isclose(self.__x, other.x)
+    def __eq__(self, other: Any) -> bool:
+        return (isinstance(other, Point)
+                and math.isclose(self.__x, other.x)
                 and math.isclose(self.__y, other.y))
 
     @property

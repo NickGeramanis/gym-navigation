@@ -1,6 +1,7 @@
 import math
 
 from gym_navigation.utils.point import Point
+from typing import Any
 
 
 class Pose:
@@ -69,8 +70,9 @@ class Pose:
         elif self.__yaw > math.pi:
             self.__yaw -= 2 * math.pi
 
-    def __eq__(self, other) -> bool:
-        return (self.__position == other.position
+    def __eq__(self, other: Any) -> bool:
+        return (isinstance(other, Pose)
+                and self.__position == other.position
                 and math.isclose(self.__yaw, other.yaw))
 
     @property

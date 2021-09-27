@@ -1,6 +1,7 @@
 import math
 
 from gym_navigation.utils.point import Point
+from typing import Any
 
 
 class NoIntersection(Exception):
@@ -67,9 +68,10 @@ class Line:
                       <= max(self.__start.y, self.__end.y))
         return contains_x and contains_y
 
-    def __eq__(self, other) -> bool:
-        return (self.__start == other.start and self.__end == other.end
-                or self.__start == other.end and self.__end == other.start)
+    def __eq__(self, other: Any) -> bool:
+        return (isinstance(other, Line)
+                and (self.__start == other.start and self.__end == other.end
+                or self.__start == other.end and self.__end == other.start))
 
     @property
     def start(self) -> Point:
