@@ -1,7 +1,7 @@
 import math
+from typing import Any
 
 from gym_navigation.utils.point import Point
-from typing import Any
 
 
 class Pose:
