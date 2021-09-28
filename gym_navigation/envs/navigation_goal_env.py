@@ -279,7 +279,7 @@ class NavigationGoalEnv(Env):
 
         return observation, reward, done, []
 
-    def render(self, mode='human') -> None:
+    def render(self, mode: str = 'human') -> None:
         if mode != 'human':
             super().render(mode=mode)
 
