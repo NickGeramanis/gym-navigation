@@ -28,6 +28,6 @@ jobs:
       - name: Show coverage report
         run: coverage report
       - name: Run linter
-        run: flake8 --exclude **/__init__.py --max-complexity 10 gym_navigation/
+        run: pylint gym_navigation/
       - name: Run type checker
         run: mypy --ignore-missing-imports gym_navigation/

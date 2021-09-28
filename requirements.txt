@@ -3,12 +3,7 @@ numpy
 matplotlib
 pytest
 coverage
-flake8
-flake8-bugbear
-pep8-naming
-flake8-docstrings
-flake8-isort
-flake8-builtins
+pylint
 mypy
 autopep8
 isort
