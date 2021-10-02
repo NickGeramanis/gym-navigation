@@ -75,19 +75,19 @@ def test_not_contains():
     assert not line.contains(Point(0, -2))
 
 
-def test_correct_m_and_b():
+def test_correct_slope_and_y_intercept():
     line = Line(Point(2, 0), Point(7, 5))
 
-    assert line.m == 1 and line.b == -2
+    assert line.slope == 1 and line.y_intercept == -2
 
 
-def test_correct_m_and_b_vertical_line():
+def test_correct_m_and_y_intercept_vertical_line():
     line = Line(Point(2, 0), Point(2, 10))
 
-    assert line.m == 0 and line.b is math.inf
+    assert line.slope == 0 and line.y_intercept is math.inf
 
 
-def test_correct_m_and_b_horizontal_line():
+def test_correct_slope_and_y_intercept_horizontal_line():
     line = Line(Point(0, 2), Point(10, 2))
 
-    assert line.m == 0 and line.b == 2
+    assert line.slope == 0 and line.y_intercept == 2

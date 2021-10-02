@@ -1,3 +1,4 @@
+"""This module contains the Line class."""
 import math
 from typing import Any
 
@@ -13,45 +14,46 @@ class Line:
 
     __start: Point
     __end: Point
-    __m: float
-    __b: float
+    __slope: float
+    __y_intercept: float
 
     def __init__(self, start: Point, end: Point) -> None:
         self.__start = start
         self.__end = end
         if start.x == end.x:  # Vertical line
-            self.__m = 0
-            self.__b = math.inf
+            self.__slope = 0
+            self.__y_intercept = math.inf
         elif start.y == end.y:  # Horizontal line
-            self.__m = 0
-            self.__b = start.y
+            self.__slope = 0
+            self.__y_intercept = start.y
         else:
-            self.__m = (start.y - end.y) / (start.x - end.x)
-            self.__b = start.y - self.__m * start.x
+            self.__slope = (start.y - end.y) / (start.x - end.x)
+            self.__y_intercept = start.y - self.__slope * start.x
 
     def get_intersection(self, other) -> Point:
         """Get the intersection point between two lines.
 
         Raise an error if it does not exist.
         """
-        if self.__m == other.m:  # Parallel lines
+        if self.__slope == other.slope:  # Parallel lines
             raise NoIntersection
 
         if self.__start.x == self.__end.x:
             x = self.__start.x
-            y = other.m * x + other.b
+            y = other.slope * x + other.y_intercept
         elif other.start.x == other.end.x:
             x = other.start.x
-            y = self.__m * x + self.__b
+            y = self.__slope * x + self.__y_intercept
         elif self.__start.y == self.__end.y:
             y = self.__start.y
-            x = (y - other.b) / other.m
+            x = (y - other.y_intercept) / other.slope
         elif other.start.y == other.end.y:
             y = other.start.y
-            x = (y - self.__b) / self.__m
+            x = (y - self.__y_intercept) / self.__slope
         else:
-            x = (self.__b - other.b) / (other.m - self.__m)
-            y = self.__m * x + self.__b
+            x = ((self.__y_intercept - other.y_intercept)
+                 / (other.slope - self.__slope))
+            y = self.__slope * x + self.__y_intercept
 
         intersection = Point(x, y)
 
@@ -92,19 +94,19 @@ class Line:
         self.__end = end
 
     @property
-    def m(self) -> float:
-        """The gradient coefficient of the line equation."""
-        return self.__m
+    def slope(self) -> float:
+        """The slope of the line equation."""
+        return self.__slope
 
-    @m.setter
-    def m(self, m) -> None:
-        self.__m = m
+    @slope.setter
+    def slope(self, slope) -> None:
+        self.__slope = slope
 
     @property
-    def b(self) -> float:
-        """The b coefficient of the line equation."""
-        return self.__b
+    def y_intercept(self) -> float:
+        """The y-intercept of the line equation."""
+        return self.__y_intercept
 
-    @b.setter
-    def b(self, b) -> None:
-        self.__b = b
+    @y_intercept.setter
+    def y_intercept(self, y_intercept) -> None:
+        self.__y_intercept = y_intercept

@@ -1,3 +1,4 @@
+"""This Module contains the Navigation Environment class."""
 import copy
 import math
 import random
@@ -111,18 +112,18 @@ class NavigationEnv(Env):
 
     def __perform_action(self, action: int) -> None:
         theta = random.gauss(0, self.__SHIFT_STANDARD_DEVIATION)
-        d = random.gauss(0, self.__SHIFT_STANDARD_DEVIATION)
+        distance = random.gauss(0, self.__SHIFT_STANDARD_DEVIATION)
 
         if action == self.__FORWARD:
-            d += self.__FORWARD_LINEAR_SHIFT
+            distance += self.__FORWARD_LINEAR_SHIFT
         elif action == self.__YAW_RIGHT:
-            d += self.__YAW_LINEAR_SHIFT
+            distance += self.__YAW_LINEAR_SHIFT
             theta += self.__YAW_ANGULAR_SHIFT
         elif action == self.__YAW_LEFT:
-            d += self.__YAW_LINEAR_SHIFT
+            distance += self.__YAW_LINEAR_SHIFT
             theta -= self.__YAW_ANGULAR_SHIFT
 
-        self.__pose.shift(d, theta)
+        self.__pose.shift(distance, theta)
 
     def __update_scan(self) -> None:
         scan_poses = np.empty(self.__N_MEASUREMENTS, dtype=Pose)

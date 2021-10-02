@@ -1,3 +1,4 @@
+"""This module contains the Point."""
 import math
 from typing import Any
 
