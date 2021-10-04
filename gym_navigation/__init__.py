@@ -1,3 +1,4 @@
+"""This __init__ file is used to register the environments."""
 from gym.envs.registration import register
 
 register(

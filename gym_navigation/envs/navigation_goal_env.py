@@ -14,6 +14,7 @@ from gym_navigation.utils.pose import Pose
 
 
 class NavigationGoalEnv(Env):
+    """The Navigation Goal Environment."""
     __metadata = {'render.modes': ['human']}
 
     __N_ACTIONS = 3
@@ -313,12 +314,15 @@ class NavigationGoalEnv(Env):
 
     @property
     def action_space(self) -> spaces.Discrete:
+        """The action space of the environemt."""
         return self.__action_space
 
     @property
     def observation_space(self) -> spaces.Box:
+        """The observation space of the environemt."""
         return self.__observation_space
 
     @property
     def metadata(self) -> Dict:
+        """The metadata of the environemt."""
         return self.__metadata
