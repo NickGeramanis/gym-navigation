@@ -1,4 +1,4 @@
-"""This Module contains the Navigation Environment class."""
+"""This Module contains the Navigation Track environment class."""
 import copy
 import math
 import random
@@ -13,8 +13,8 @@ from gym_navigation.utils.point import Point
 from gym_navigation.utils.pose import Pose
 
 
-class NavigationEnv(Env):
-    """The Navigation Environment."""
+class NavigationTrack(Env):
+    """The Navigation Track environment."""
     __metadata = {'render.modes': ['human']}
 
     __N_ACTIONS = 3

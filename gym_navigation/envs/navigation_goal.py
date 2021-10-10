@@ -1,4 +1,4 @@
-"""This Module contains the Navigation Goal Environment class."""
+"""This Module contains the Navigation Goal environment class."""
 import copy
 import math
 import random
@@ -13,8 +13,8 @@ from gym_navigation.utils.point import Point
 from gym_navigation.utils.pose import Pose
 
 
-class NavigationGoalEnv(Env):
-    """The Navigation Goal Environment."""
+class NavigationGoal(Env):
+    """The Navigation Goal environment."""
     __metadata = {'render.modes': ['human']}
 
     __N_ACTIONS = 3
