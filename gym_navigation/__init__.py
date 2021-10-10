@@ -2,8 +2,8 @@
 from gym.envs.registration import register
 
 register(
-    id='NavigationTrack-v0',
-    entry_point='gym_navigation.envs.navigation_track:NavigationTrack')
+    id='Navigation-v0',
+    entry_point='gym_navigation.envs.navigation:Navigation')
 register(
     id='NavigationGoal-v0',
     entry_point='gym_navigation.envs.navigation_goal:NavigationGoal')
