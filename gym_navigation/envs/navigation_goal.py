@@ -73,7 +73,7 @@ class NavigationGoal(Navigation):
                                              dtype=np.float32)
 
     def _init_obstacles(self) -> None:
-        self._track = self._TRACKS[self._track_id - 1]
+        self._track = self.__TRACKS[self._track_id - 1]
         # Don't check for overlapping obstacles
         # in order to create strange shapes.
         for _ in range(self._N_OBSTACLES):
