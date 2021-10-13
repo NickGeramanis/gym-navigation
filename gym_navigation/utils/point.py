@@ -1,4 +1,6 @@
 """This module contains the Point."""
+from __future__ import annotations
+
 import math
 from typing import Any
 
@@ -6,36 +8,37 @@ from typing import Any
 class Point:
     """A point in Cartesian plane."""
 
-    __x: float
-    __y: float
+    __x_coordinate: float
+    __y_coordinate: float
 
-    def __init__(self, x: float, y: float) -> None:
-        self.__x = x
-        self.__y = y
+    def __init__(self, x_coordinate: float, y_coordinate: float) -> None:
+        self.x_coordinate = x_coordinate
+        self.y_coordinate = y_coordinate
 
-    def calculate_distance(self, other) -> float:
+    def calculate_distance(self, other: Point) -> float:
         """Calculate the Euclidean distance between two points."""
-        return math.sqrt((self.__x - other.x) ** 2 + (self.__y - other.y) ** 2)
+        return math.sqrt((self.x_coordinate - other.x_coordinate) ** 2
+                         + (self.y_coordinate - other.y_coordinate) ** 2)
 
     def __eq__(self, other: Any) -> bool:
         return (isinstance(other, Point)
-                and math.isclose(self.__x, other.x)
-                and math.isclose(self.__y, other.y))
+                and math.isclose(self.x_coordinate, other.x_coordinate)
+                and math.isclose(self.y_coordinate, other.y_coordinate))
 
     @property
-    def x(self) -> float:
+    def x_coordinate(self) -> float:
         """The x coordinate."""
-        return self.__x
+        return self.__x_coordinate
 
-    @x.setter
-    def x(self, x) -> None:
-        self.__x = x
+    @x_coordinate.setter
+    def x_coordinate(self, x_coordinate: float) -> None:
+        self.__x_coordinate = x_coordinate
 
     @property
-    def y(self) -> float:
+    def y_coordinate(self) -> float:
         """The y coordinate."""
-        return self.__y
+        return self.__y_coordinate
 
-    @y.setter
-    def y(self, y) -> None:
-        self.__y = y
+    @y_coordinate.setter
+    def y_coordinate(self, y_coordinate: float) -> None:
+        self.__y_coordinate = y_coordinate
