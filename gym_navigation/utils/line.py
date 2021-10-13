@@ -14,6 +14,7 @@ class NoIntersectionError(Exception):
 class Line:
     """A line (line segment) in Cartesian plane."""
 
+    # issue #4100 pylint: disable=too-many-instance-attributes
     __start: Point
     __end: Point
     __slope: float
