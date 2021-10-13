@@ -1,4 +1,4 @@
-"""This Module contains the basic Navigation environment class."""
+"""This module contains the basic Navigation environment class."""
 import copy
 import math
 import random

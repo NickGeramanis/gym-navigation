@@ -1,4 +1,4 @@
-"""This Module contains the Navigation Goal environment class."""
+"""This module contains the Navigation Goal environment class."""
 import math
 import random
 from typing import List, Tuple
