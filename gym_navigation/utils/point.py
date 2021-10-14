@@ -1,4 +1,4 @@
-"""This module contains the Point."""
+"""This module contains the Point class."""
 from __future__ import annotations
 
 import math
@@ -8,8 +8,8 @@ from typing import Any
 class Point:
     """A point in Cartesian plane."""
 
-    __x_coordinate: float
-    __y_coordinate: float
+    x_coordinate: float
+    y_coordinate: float
 
     def __init__(self, x_coordinate: float, y_coordinate: float) -> None:
         self.x_coordinate = x_coordinate
@@ -24,21 +24,3 @@ class Point:
         return (isinstance(other, Point)
                 and math.isclose(self.x_coordinate, other.x_coordinate)
                 and math.isclose(self.y_coordinate, other.y_coordinate))
-
-    @property
-    def x_coordinate(self) -> float:
-        """The x coordinate."""
-        return self.__x_coordinate
-
-    @x_coordinate.setter
-    def x_coordinate(self, x_coordinate: float) -> None:
-        self.__x_coordinate = x_coordinate
-
-    @property
-    def y_coordinate(self) -> float:
-        """The y coordinate."""
-        return self.__y_coordinate
-
-    @y_coordinate.setter
-    def y_coordinate(self, y_coordinate: float) -> None:
-        self.__y_coordinate = y_coordinate

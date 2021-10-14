@@ -59,10 +59,10 @@ class NavigationGoal(Navigation):
                        + [-math.pi],
                        dtype=np.float32)
 
-        self._observation_space = spaces.Box(low=low,
-                                             high=high,
-                                             shape=(self._N_OBSERVATIONS,),
-                                             dtype=np.float32)
+        self.observation_space = spaces.Box(low=low,
+                                            high=high,
+                                            shape=(self._N_OBSERVATIONS,),
+                                            dtype=np.float32)
 
     def _init_obstacles(self) -> None:
         self._track = self._TRACKS[self._track_id - 1]
@@ -165,7 +165,7 @@ class NavigationGoal(Navigation):
         return observation, reward, done, []
 
     def render(self, mode: str = 'human') -> None:
-        if mode not in self._metadata['render.modes']:
+        if mode not in self.metadata['render.modes']:
             raise ValueError(f'Mode {mode} is not supported')
 
         self._plot()

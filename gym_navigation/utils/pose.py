@@ -8,15 +8,15 @@ from gym_navigation.utils.point import Point
 class Pose:
     """The pose of an object in Cartesian plane."""
 
-    __position: Point
-    __yaw: float
+    position: Point
+    _yaw: float
 
     def __init__(self, position: Point, yaw: float) -> None:
         self.position = position
         self.yaw = yaw
 
     def move(self, distance: float) -> None:
-        """Move the pose a distance."""
+        """Move the pose a given distance."""
         if self.yaw == 0:
             self.position.y_coordinate += distance
         elif abs(self.yaw) == math.pi:
@@ -49,8 +49,8 @@ class Pose:
     def calculate_angle_difference(self, target: Point) -> float:
         """Calculate the angle difference from a point.
 
-        This is the angle and the direction (+ or -) that the
-        object need to rotate in order to face the target point.
+        This is the angle and the direction (+ or -) that the object
+        needs to rotate in order to face the target point.
         """
         vector1 = Point(target.x_coordinate - self.position.x_coordinate,
                         target.y_coordinate - self.position.y_coordinate)
@@ -76,15 +76,6 @@ class Pose:
                 and math.isclose(self.yaw, other.yaw))
 
     @property
-    def position(self) -> Point:
-        """The position of the object in the Cartesian plane."""
-        return self.__position
-
-    @position.setter
-    def position(self, position: Point) -> None:
-        self.__position = position
-
-    @property
     def yaw(self) -> float:
         """The rotation (yaw) of the object.
 
@@ -92,12 +83,12 @@ class Pose:
         Positive yaw means clockwise direction while
         negative yaw means counterclockwise direction.
         """
-        return self.__yaw
+        return self._yaw
 
     @yaw.setter
     def yaw(self, yaw: float) -> None:
-        self.__yaw = yaw
-        while self.__yaw < -math.pi:
-            self.__yaw += 2 * math.pi
-        while self.__yaw > math.pi:
-            self.__yaw -= 2 * math.pi
+        self._yaw = yaw
+        while self._yaw < -math.pi:
+            self._yaw += 2 * math.pi
+        while self._yaw > math.pi:
+            self._yaw -= 2 * math.pi

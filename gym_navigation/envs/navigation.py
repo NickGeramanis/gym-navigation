@@ -2,7 +2,7 @@
 import copy
 import math
 import random
-from typing import Dict, List, Tuple
+from typing import List, Tuple
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -15,7 +15,7 @@ from gym_navigation.utils.pose import Pose
 
 class Navigation(Env):
     """The basic Navigation environment."""
-    _metadata = {'render.modes': ['human']}
+    metadata = {'render.modes': ['human']}
 
     _N_ACTIONS = 3
     _FORWARD = 0
@@ -80,8 +80,8 @@ class Navigation(Env):
     _spawn_area: Tuple[Tuple[Tuple[float, float], Tuple[float, float]], ...]
     _ranges: np.ndarray
     _pose: Pose
-    _action_space: spaces.Discrete
-    _observation_space: spaces.Box
+    action_space: spaces.Discrete
+    observation_space: spaces.Box
 
     def __init__(self, track_id: int = 1) -> None:
         if track_id in range(1, len(self._TRACKS) + 1):
@@ -92,12 +92,12 @@ class Navigation(Env):
 
         self._ranges = np.empty(self._N_MEASUREMENTS)
 
-        self._action_space = spaces.Discrete(self._N_ACTIONS)
+        self.action_space = spaces.Discrete(self._N_ACTIONS)
 
-        self._observation_space = spaces.Box(low=self._SCAN_RANGE_MAX,
-                                             high=self._SCAN_RANGE_MIN,
-                                             shape=(self._N_OBSERVATIONS,),
-                                             dtype=np.float32)
+        self.observation_space = spaces.Box(low=self._SCAN_RANGE_MAX,
+                                            high=self._SCAN_RANGE_MIN,
+                                            shape=(self._N_OBSERVATIONS,),
+                                            dtype=np.float32)
 
     def _init_pose(self) -> None:
         area = random.choice(self._spawn_area)
@@ -193,7 +193,7 @@ class Navigation(Env):
         return observation, reward, done, []
 
     def render(self, mode: str = 'human') -> None:
-        if mode not in self._metadata['render.modes']:
+        if mode not in self.metadata['render.modes']:
             raise ValueError(f'Mode {mode} is not supported')
 
         self._plot()
@@ -232,18 +232,3 @@ class Navigation(Env):
 
     def close(self) -> None:
         plt.close()
-
-    @property
-    def action_space(self) -> spaces.Discrete:
-        """The action space of the environment."""
-        return self._action_space
-
-    @property
-    def observation_space(self) -> spaces.Box:
-        """The observation space of the environment."""
-        return self._observation_space
-
-    @property
-    def metadata(self) -> Dict:
-        """The metadata of the environment."""
-        return self._metadata

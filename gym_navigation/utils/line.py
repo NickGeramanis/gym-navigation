@@ -14,11 +14,10 @@ class NoIntersectionError(Exception):
 class Line:
     """A line (line segment) in Cartesian plane."""
 
-    # false positive, issue #4100, pylint: disable=too-many-instance-attributes
-    __start: Point
-    __end: Point
-    __slope: float
-    __y_intercept: float
+    start: Point
+    end: Point
+    slope: float
+    y_intercept: float
 
     def __init__(self, start: Point, end: Point) -> None:
         self.start = start
@@ -83,39 +82,3 @@ class Line:
         return (isinstance(other, Line)
                 and ((self.start == other.start and self.end == other.end)
                      or (self.start == other.end and self.end == other.start)))
-
-    @property
-    def start(self) -> Point:
-        """The start point of the line."""
-        return self.__start
-
-    @start.setter
-    def start(self, start: Point) -> None:
-        self.__start = start
-
-    @property
-    def end(self) -> Point:
-        """The end point of the line."""
-        return self.__end
-
-    @end.setter
-    def end(self, end: Point) -> None:
-        self.__end = end
-
-    @property
-    def slope(self) -> float:
-        """The slope of the line equation."""
-        return self.__slope
-
-    @slope.setter
-    def slope(self, slope) -> None:
-        self.__slope = slope
-
-    @property
-    def y_intercept(self) -> float:
-        """The y-intercept of the line equation."""
-        return self.__y_intercept
-
-    @y_intercept.setter
-    def y_intercept(self, y_intercept) -> None:
-        self.__y_intercept = y_intercept
