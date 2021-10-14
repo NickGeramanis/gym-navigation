@@ -91,7 +91,6 @@ class Navigation(Env):
             raise ValueError(f'Invalid track id {track_id} ({type(track_id)})')
 
         self._ranges = np.empty(self._N_MEASUREMENTS)
-        self._pose = Pose(Point(0, 0), 0)
 
         self._action_space = spaces.Discrete(self._N_ACTIONS)
 

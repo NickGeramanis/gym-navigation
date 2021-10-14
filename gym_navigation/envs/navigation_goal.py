@@ -49,9 +49,6 @@ class NavigationGoal(Navigation):
         super().__init__(track_id)
         self._track_id = track_id
 
-        self._distance_from_goal = 0.0
-        self._goal = Point(0, 0)
-
         high = np.array(self._N_MEASUREMENTS * [self._SCAN_RANGE_MAX]
                         + [self._MAXIMUM_GOAL_DISTANCE]
                         + [math.pi],
