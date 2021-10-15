@@ -33,7 +33,7 @@
     </h2>
     <h3 id="description">Description</h3>
     <p>The environment provides two tasks:</p>
-    <h4>Navigation</h4>
+    <h4>NavigationTrack</h4>
     <p>
         The goal of this environment is to navigate a robot on a track without
         crashing into the walls. Initially, the robot is placed randomly into
@@ -44,7 +44,7 @@
         rewarded +5 for moving forward and -0.5 for rotating. If the robot
         crashes into the wall it is penalized with -200.
     </p>
-    <img alt="Navigation environment" src="images/navigation.png"/>
+    <img alt="Navigation environment" src="images/navigation_track.png"/>
     <h4>NavigationGoal</h4>
     <p>
         The goal of this environment is to navigate a robot to reach a goal
@@ -89,8 +89,8 @@
     <code>
         import gym <br>
         <br>
-        # Navigation Environment <br>
-        env = gym.make('gym_navigation:Navigation-v0', track_id=1) <br>
+        # NavigationTrack Environment <br>
+        env = gym.make('gym_navigation:NavigationTrack-v0', track_id=1) <br>
     </code>
     <code>
         import gym <br>
