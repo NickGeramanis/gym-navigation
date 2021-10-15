@@ -24,7 +24,7 @@ class Navigation(Env):
 
         self._do_perform_action(action)
         done = self._do_check_if_done()
-        reward = self._do_calculate_reward(action, done)
+        reward = self._do_calculate_reward(action)
         # Update the observation last
         # so that we have access to previous observation.
         self._do_update_observation()
@@ -40,7 +40,7 @@ class Navigation(Env):
         pass
 
     @abstractmethod
-    def _do_calculate_reward(self, action: int, done: bool) -> float:
+    def _do_calculate_reward(self, action: int) -> float:
         pass
 
     @abstractmethod

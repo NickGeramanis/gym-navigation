@@ -159,8 +159,8 @@ class NavigationTrack(Navigation):
     def _collision_occurred(self) -> bool:
         return bool((self._ranges < self._COLLISION_THRESHOLD).any())
 
-    def _do_calculate_reward(self, action: int, done: bool) -> float:
-        if done:
+    def _do_calculate_reward(self, action: int) -> float:
+        if self._collision_occurred():
             reward = self._COLLISION_REWARD
         elif action == self._FORWARD:
             reward = self._FORWARD_REWARD

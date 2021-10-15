@@ -74,7 +74,7 @@ class NavigationGoal(NavigationTrack):
         return (self._collision_occurred()
                 or self._distance_from_goal < self._GOAL_THRESHOLD)
 
-    def _do_calculate_reward(self, action: int, done: bool) -> float:
+    def _do_calculate_reward(self, action: int) -> float:
         if self._collision_occurred():
             reward = self._COLLISION_REWARD
         elif self._distance_from_goal < self._GOAL_THRESHOLD:
