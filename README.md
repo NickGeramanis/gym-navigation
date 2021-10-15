@@ -21,7 +21,7 @@ navigation problem in robotics.
 
 The environment provides two tasks:
 
-### Navigation
+### NavigationTrack
 
 The goal of this environment is to navigate a robot on a track without crashing
 into the walls. Initially, the robot is placed randomly into the track but at a
@@ -31,7 +31,7 @@ rotate_right). Furthermore, both actions and states have additive white
 Gaussian noise. The robot is rewarded +5 for moving forward and -0.5 for
 rotating. If the robot crashes into the wall it is penalized with -200.
 
-![Navigation environment](/images/navigation.png)
+![Navigation environment](/images/navigation_track.png)
 
 ### NavigationGoal
 
@@ -81,8 +81,8 @@ You can create an instance of the environment with the following commands:
 ```python
 import gym
 
-# Navigation Environment
-env = gym.make('gym_navigation:Navigation-v0', track_id=1)
+# NavigationTrack Environment
+env = gym.make('gym_navigation:NavigationTrack-v0', track_id=1)
 ```
 
 ```python
