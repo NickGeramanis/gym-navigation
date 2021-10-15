@@ -1,80 +1,98 @@
 body {
-  font-family: Arial, sans-serif;
+    font-family: Arial, sans-serif;
 }
+
 .sidenav {
-  height: 100%;
-  width: 300px;
-  position: fixed;
-  z-index: 1;
-  top: 0;
-  left: 0;
-  background-color: orangered;
-  overflow: auto;
+    height: 100%;
+    width: 300px;
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    background-color: orangered;
+    overflow: auto;
 }
+
 .sidenav a {
-  padding: 8px;
-  text-decoration: none;
-  font-size: 20px;
-  font-weight: bold;
-  color: white;
-  display: block;
-  margin: 16px;
+    padding: 8px;
+    text-decoration: none;
+    font-size: 20px;
+    font-weight: bold;
+    color: white;
+    display: block;
+    margin: 16px;
 }
+
 .sidenav a:hover {
-  color: black;
-  background: white;
+    color: black;
+    background: white;
 }
+
 .main {
-  margin: 16px 16px 16px 350px;
+    margin: 16px 16px 16px 350px;
 }
+
 .main h1 {
-  font-size: 40px;
+    font-size: 40px;
 }
+
 .main h1 > a {
-  font-size: 40px;
+    font-size: 40px;
 }
+
 .main h2 {
-  font-size: 20px;
+    font-size: 20px;
 }
+
 .main h2 > a {
-  font-size: 20px;
+    font-size: 20px;
 }
+
 .main h3 {
-  font-size: 32px;
-  color: orangered;
+    font-size: 32px;
+    color: orangered;
 }
+
 .main h3 > a {
-  font-size: 32px;
+    font-size: 32px;
 }
+
 .main h4 {
-  font-size: 20px;
+    font-size: 20px;
 }
+
 .main h4 > a {
-  font-size: 20px;
+    font-size: 20px;
 }
+
 .main p {
-  font-size: 18px;
+    font-size: 18px;
 }
+
 .main p > a {
-  font-size: 18px;
+    font-size: 18px;
 }
+
 .main ul {
-  font-size: 18px;
+    font-size: 18px;
 }
+
 .main img {
-  font-size: 18px;
+    font-size: 18px;
 }
+
 .main code {
-  font-size: 16px;
-  font-family: "Courier New", monospace;
-  padding: 16px;
-  margin: 16px;
-  display: block;
-  background-color: lightgrey;
+    font-size: 16px;
+    font-family: "Courier New", monospace;
+    padding: 16px;
+    margin: 16px;
+    display: block;
+    background-color: lightgrey;
 }
+
 .main quote {
-  font-size: 18px;
-  font-style: italic;
-  padding: 1px;
-  background-color: lightgrey;
+    font-size: 18px;
+    font-style: italic;
+    padding: 1px;
+    background-color: lightgrey;
 }
