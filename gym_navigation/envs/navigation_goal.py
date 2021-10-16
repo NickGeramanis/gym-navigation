@@ -16,6 +16,9 @@ class NavigationGoal(NavigationTrack):
     _GOAL_THRESHOLD = 0.4
     _MINIMUM_DISTANCE = 3
 
+    _ANGLE_STANDARD_DEVIATION = 0.02
+    _DISTANCE_STANDARD_DEVIATION = 0.02
+
     _TRANSITION_REWARD_FACTOR = 10
     _GOAL_REWARD = 200.0
 
@@ -64,12 +67,6 @@ class NavigationGoal(NavigationTrack):
                                             shape=(self._N_OBSERVATIONS,),
                                             dtype=np.float32)
 
-    def _do_perform_action(self, action: int) -> None:
-        super()._do_perform_action(action)
-
-        self._distance_from_goal = self._pose.position.calculate_distance(
-            self._goal)
-
     def _do_check_if_done(self) -> bool:
         return (self._collision_occurred()
                 or self._distance_from_goal < self._GOAL_THRESHOLD)
@@ -81,12 +78,18 @@ class NavigationGoal(NavigationTrack):
             reward = self._GOAL_REWARD
         else:
             reward = (self._TRANSITION_REWARD_FACTOR
-                      * (self._distance_from_goal - self._observation[-2]))
+                      * (self._observation[-2] - self._distance_from_goal))
 
         return reward
 
     def _do_update_observation(self) -> None:
-        angle_from_goal = self._pose.calculate_angle_difference(self._goal)
+        self._update_scan()
+        self._distance_from_goal = (
+                self._DISTANCE_STANDARD_DEVIATION
+                + self._pose.position.calculate_distance(self._goal))
+        angle_from_goal = (self._ANGLE_STANDARD_DEVIATION
+                           + self._pose.calculate_angle_difference(self._goal))
+
         self._observation = np.append(
             self._ranges,
             [self._distance_from_goal, angle_from_goal])

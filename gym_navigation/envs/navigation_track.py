@@ -114,7 +114,6 @@ class NavigationTrack(Navigation):
             theta -= self._YAW_ANGULAR_SHIFT
 
         self._pose.shift(distance, theta)
-        self._update_scan()
 
     def _update_scan(self) -> None:
         scan_lines = self._create_scan_lines()
@@ -170,6 +169,8 @@ class NavigationTrack(Navigation):
         return reward
 
     def _do_update_observation(self) -> None:
+        self._update_scan()
+
         self._observation = self._ranges
 
     def _do_init_environment(self) -> None:
