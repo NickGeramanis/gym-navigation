@@ -2,8 +2,8 @@ import numpy as np
 import pytest
 
 from gym_navigation.envs.navigation_goal import NavigationGoal
-from gym_navigation.utils.point import Point
-from gym_navigation.utils.pose import Pose
+from gym_navigation.geometry.point import Point
+from gym_navigation.geometry.pose import Pose
 
 
 def test_invalid_track_id():

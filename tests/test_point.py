@@ -1,6 +1,6 @@
 import math
 
-from gym_navigation.utils.point import Point
+from gym_navigation.geometry.point import Point
 
 
 def test_point_equality():

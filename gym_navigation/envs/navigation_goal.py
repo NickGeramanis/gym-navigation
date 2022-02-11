@@ -7,8 +7,8 @@ import numpy as np
 from gym import spaces
 
 from gym_navigation.envs.navigation_track import NavigationTrack
-from gym_navigation.utils.line import Line
-from gym_navigation.utils.point import Point
+from gym_navigation.geometry.line import Line
+from gym_navigation.geometry.point import Point
 
 
 class NavigationGoal(NavigationTrack):

@@ -9,9 +9,9 @@ import numpy as np
 from gym import spaces
 
 from gym_navigation.envs.navigation import Navigation
-from gym_navigation.utils.line import Line, NoIntersectionError
-from gym_navigation.utils.point import Point
-from gym_navigation.utils.pose import Pose
+from gym_navigation.geometry.line import Line, NoIntersectionError
+from gym_navigation.geometry.point import Point
+from gym_navigation.geometry.pose import Pose
 
 
 class NavigationTrack(Navigation):

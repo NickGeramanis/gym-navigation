@@ -2,8 +2,8 @@ import math
 
 import pytest
 
-from gym_navigation.utils.line import Line, NoIntersectionError
-from gym_navigation.utils.point import Point
+from gym_navigation.geometry.line import Line, NoIntersectionError
+from gym_navigation.geometry.point import Point
 
 
 def test_line_equality():

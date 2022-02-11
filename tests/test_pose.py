@@ -1,7 +1,7 @@
 import math
 
-from gym_navigation.utils.point import Point
-from gym_navigation.utils.pose import Pose
+from gym_navigation.geometry.point import Point
+from gym_navigation.geometry.pose import Pose
 
 
 def test_pose_equality():
