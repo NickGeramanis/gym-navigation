@@ -1,7 +1,7 @@
 """This module contains the navigation class."""
 
 from abc import abstractmethod
-from typing import List, Tuple
+from typing import Dict, Tuple
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -18,7 +18,8 @@ class Navigation(Env):
     _RENDER_PAUSE_TIME = 0.01
     _observation: np.ndarray
 
-    def step(self, action: int) -> Tuple[np.ndarray, float, bool, List[str]]:
+    def step(self,
+             action: int) -> Tuple[np.ndarray, float, bool, Dict[str, str]]:
         if not self.action_space.contains(action):
             raise ValueError(f'Invalid action {action} ({type(action)})')
 
