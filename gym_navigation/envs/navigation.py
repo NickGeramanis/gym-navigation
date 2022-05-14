@@ -29,7 +29,7 @@ class Navigation(Env):
         # so that we have access to previous observation.
         self._do_update_observation()
 
-        return self._observation.copy(), reward, done, []
+        return self._observation.copy(), reward, done, {}
 
     @abstractmethod
     def _do_perform_action(self, action: int) -> None:
