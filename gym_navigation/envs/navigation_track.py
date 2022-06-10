@@ -123,7 +123,8 @@ class NavigationTrack(Navigation):
                 if distance < min_distance:
                     min_distance = distance
 
-            sensor_noise = self.np_random.normal(0, self._SENSOR_STANDARD_DEVIATION)
+            sensor_noise = self.np_random.normal(
+                0, self._SENSOR_STANDARD_DEVIATION)
             self._ranges[i] = min_distance + sensor_noise
 
     def _create_scan_lines(self) -> np.ndarray:
