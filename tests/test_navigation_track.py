@@ -1,7 +1,9 @@
 import math
 
+import gym
 import numpy as np
 import pytest
+from gym.utils.env_checker import check_env
 
 from gym_navigation.envs.navigation_track import NavigationTrack
 from gym_navigation.geometry.point import Point
@@ -101,3 +103,8 @@ def test_do_calculate_reward_if_yaw():
     reward2 = env._do_calculate_reward(env._YAW_LEFT)
 
     assert reward1 == reward2 == -0.5
+
+
+def test_sanity():
+    env = gym.make('gym_navigation:NavigationTrack-v0', track_id=1)
+    check_env(env, warn=False)

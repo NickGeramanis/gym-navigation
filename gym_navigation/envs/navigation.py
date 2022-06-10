@@ -1,7 +1,7 @@
 """This module contains the navigation class."""
 
 from abc import abstractmethod
-from typing import Dict, Tuple
+from typing import Tuple, Union, Optional
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -18,8 +18,9 @@ class Navigation(Env):
     _RENDER_PAUSE_TIME = 0.01
     _observation: np.ndarray
 
-    def step(self,
-             action: int) -> Tuple[np.ndarray, float, bool, Dict[str, str]]:
+    metadata = {'render_modes': ['human']}
+
+    def step(self, action: int) -> Tuple[np.ndarray, float, bool, dict]:
         if not self.action_space.contains(action):
             raise ValueError(f'Invalid action {action} ({type(action)})')
 
@@ -45,19 +46,22 @@ class Navigation(Env):
         pass
 
     @abstractmethod
-    def _do_update_observation(self):
+    def _do_update_observation(self) -> None:
         pass
 
-    def reset(self) -> np.ndarray:
+    def reset(self, *, seed: Optional[int] = None, return_info: bool = False,
+              options: Optional[dict] = None) -> Union[
+            np.ndarray, Tuple[np.ndarray, dict]]:
+        super().reset(seed=seed)
         self._do_init_environment()
         self._do_update_observation()
-        return self._observation
+        return (self._observation, {}) if return_info else self._observation
 
     @abstractmethod
     def _do_init_environment(self) -> None:
         pass
 
-    def render(self, mode="human"):
+    def render(self, mode: str = "human") -> None:
         if mode not in self.metadata['render.modes']:
             raise ValueError(f'Mode {mode} is not supported')
 
@@ -68,11 +72,11 @@ class Navigation(Env):
         plt.pause(self._RENDER_PAUSE_TIME)
 
     @abstractmethod
-    def _do_plot(self):
+    def _do_plot(self) -> None:
         pass
 
-    def _fork_plot(self):
+    def _fork_plot(self) -> None:
         pass
 
-    def close(self):
+    def close(self) -> None:
         plt.close()

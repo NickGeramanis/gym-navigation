@@ -1,10 +1,9 @@
 """This module contains the Navigation Goal environment class."""
 import math
-import random
 
 import matplotlib.pyplot as plt
 import numpy as np
-from gym import spaces
+from gym.spaces import Box
 
 from gym_navigation.envs.navigation_track import NavigationTrack
 from gym_navigation.geometry.line import Line
@@ -62,10 +61,10 @@ class NavigationGoal(NavigationTrack):
                        + [-math.pi],
                        dtype=np.float32)
 
-        self.observation_space = spaces.Box(low=low,
-                                            high=high,
-                                            shape=(self._N_OBSERVATIONS,),
-                                            dtype=np.float32)
+        self.observation_space = Box(low=low,
+                                     high=high,
+                                     shape=(self._N_OBSERVATIONS,),
+                                     dtype=np.float64)
 
     def _do_check_if_done(self) -> bool:
         return (self._collision_occurred()
@@ -101,9 +100,9 @@ class NavigationGoal(NavigationTrack):
 
     def _init_goal(self) -> None:
         while True:
-            area = random.choice(self._spawn_area)
-            x_coordinate = random.uniform(area[0][0], area[0][1])
-            y_coordinate = random.uniform(area[1][0], area[1][1])
+            area = self.np_random.choice(self._spawn_area)
+            x_coordinate = self.np_random.uniform(area[0][0], area[0][1])
+            y_coordinate = self.np_random.uniform(area[1][0], area[1][1])
             goal = Point(x_coordinate, y_coordinate)
             distance_from_pose = goal.calculate_distance(self._pose.position)
             if distance_from_pose > self._MINIMUM_DISTANCE:
@@ -119,9 +118,9 @@ class NavigationGoal(NavigationTrack):
         # in order to create strange shapes.
         for _ in range(self._N_OBSTACLES):
             while True:
-                area = random.choice(self._spawn_area)
-                x_coordinate = random.uniform(area[0][0], area[0][1])
-                y_coordinate = random.uniform(area[1][0], area[1][1])
+                area = self.np_random.choice(self._spawn_area)
+                x_coordinate = self.np_random.uniform(area[0][0], area[0][1])
+                y_coordinate = self.np_random.uniform(area[1][0], area[1][1])
                 obstacles_center = Point(x_coordinate, y_coordinate)
                 distance_from_pose = obstacles_center.calculate_distance(
                     self._pose.position)

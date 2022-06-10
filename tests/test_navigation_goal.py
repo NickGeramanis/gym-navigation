@@ -1,5 +1,7 @@
+import gym
 import numpy as np
 import pytest
+from gym.utils.env_checker import check_env
 
 from gym_navigation.envs.navigation_goal import NavigationGoal
 from gym_navigation.geometry.point import Point
@@ -87,3 +89,8 @@ def test_do_calculate_reward_if_action():
     reward = env._do_calculate_reward(env._FORWARD)
 
     assert reward == 20
+
+
+def test_sanity():
+    env = gym.make('gym_navigation:NavigationGoal-v0', track_id=1)
+    check_env(env, warn=False)

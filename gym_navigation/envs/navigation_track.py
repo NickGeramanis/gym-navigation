@@ -1,12 +1,11 @@
 """This module contains the Navigation Track environment class."""
 import copy
 import math
-import random
 from typing import Tuple
 
 import matplotlib.pyplot as plt
 import numpy as np
-from gym import spaces
+from gym.spaces import Box, Discrete
 
 from gym_navigation.envs.navigation import Navigation
 from gym_navigation.geometry.line import Line, NoIntersectionError
@@ -16,9 +15,6 @@ from gym_navigation.geometry.pose import Pose
 
 class NavigationTrack(Navigation):
     """The Navigation Track environment."""
-
-    metadata = {'render.modes': ['human']}
-
     _N_ACTIONS = 3
     _FORWARD = 0
     _YAW_RIGHT = 1
@@ -81,8 +77,6 @@ class NavigationTrack(Navigation):
     _pose: Pose
     _ranges: np.ndarray
     _observation: np.ndarray
-    action_space: spaces.Discrete
-    observation_space: spaces.Box
 
     def __init__(self, track_id: int = 1) -> None:
         if track_id in range(1, len(self._TRACKS) + 1):
@@ -93,16 +87,16 @@ class NavigationTrack(Navigation):
 
         self._ranges = np.empty(self._N_MEASUREMENTS)
 
-        self.action_space = spaces.Discrete(self._N_ACTIONS)
+        self.action_space = Discrete(self._N_ACTIONS)
 
-        self.observation_space = spaces.Box(low=self._SCAN_RANGE_MAX,
-                                            high=self._SCAN_RANGE_MIN,
-                                            shape=(self._N_OBSERVATIONS,),
-                                            dtype=np.float32)
+        self.observation_space = Box(low=self._SCAN_RANGE_MIN,
+                                     high=self._SCAN_RANGE_MAX,
+                                     shape=(self._N_OBSERVATIONS,),
+                                     dtype=np.float64)
 
     def _do_perform_action(self, action: int) -> None:
-        theta = random.gauss(0, self._SHIFT_STANDARD_DEVIATION)
-        distance = random.gauss(0, self._SHIFT_STANDARD_DEVIATION)
+        theta = self.np_random.normal(0, self._SHIFT_STANDARD_DEVIATION)
+        distance = self.np_random.normal(0, self._SHIFT_STANDARD_DEVIATION)
 
         if action == self._FORWARD:
             distance += self._FORWARD_LINEAR_SHIFT
@@ -129,7 +123,7 @@ class NavigationTrack(Navigation):
                 if distance < min_distance:
                     min_distance = distance
 
-            sensor_noise = random.gauss(0, self._SENSOR_STANDARD_DEVIATION)
+            sensor_noise = self.np_random.normal(0, self._SENSOR_STANDARD_DEVIATION)
             self._ranges[i] = min_distance + sensor_noise
 
     def _create_scan_lines(self) -> np.ndarray:
@@ -177,11 +171,11 @@ class NavigationTrack(Navigation):
         self._init_pose()
 
     def _init_pose(self) -> None:
-        area = random.choice(self._spawn_area)
-        x_coordinate = random.uniform(area[0][0], area[0][1])
-        y_coordinate = random.uniform(area[1][0], area[1][1])
+        area = self.np_random.choice(self._spawn_area)
+        x_coordinate = self.np_random.uniform(area[0][0], area[0][1])
+        y_coordinate = self.np_random.uniform(area[1][0], area[1][1])
         position = Point(x_coordinate, y_coordinate)
-        yaw = random.uniform(-math.pi, math.pi)
+        yaw = self.np_random.uniform(-math.pi, math.pi)
         self._pose = Pose(position, yaw)
 
     def _do_plot(self) -> None:
@@ -211,6 +205,3 @@ class NavigationTrack(Navigation):
         plt.plot(self._pose.position.x_coordinate,
                  self._pose.position.y_coordinate,
                  'ro')
-
-    def close(self) -> None:
-        plt.close()
