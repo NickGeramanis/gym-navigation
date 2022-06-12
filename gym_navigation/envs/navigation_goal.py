@@ -54,12 +54,12 @@ class NavigationGoal(NavigationTrack):
         high = np.array(self._N_MEASUREMENTS * [self._SCAN_RANGE_MAX]
                         + [self._MAXIMUM_GOAL_DISTANCE]
                         + [math.pi],
-                        dtype=np.float32)
+                        dtype=np.float64)
 
         low = np.array(self._N_MEASUREMENTS * [self._SCAN_RANGE_MIN]
                        + [0.0]
                        + [-math.pi],
-                       dtype=np.float32)
+                       dtype=np.float64)
 
         self.observation_space = Box(low=low,
                                      high=high,
