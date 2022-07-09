@@ -62,7 +62,7 @@ class Navigation(Env):
         pass
 
     def render(self, mode: str = "human") -> None:
-        if mode not in self.metadata['render.modes']:
+        if mode not in self.metadata['render_modes']:
             raise ValueError(f'Mode {mode} is not supported')
 
         plt.clf()
