@@ -25,11 +25,9 @@ class Navigation(Env):
             raise ValueError(f'Invalid action {action} ({type(action)})')
 
         self._do_perform_action(action)
+        self._do_update_observation()
         done = self._do_check_if_done()
         reward = self._do_calculate_reward(action)
-        # Update the observation last
-        # so that we have access to previous observation.
-        self._do_update_observation()
 
         return self._observation.copy(), reward, done, {}
 
@@ -55,7 +53,8 @@ class Navigation(Env):
         super().reset(seed=seed)
         self._do_init_environment()
         self._do_update_observation()
-        return (self._observation, {}) if return_info else self._observation
+        return ((self._observation.copy(), {}) if return_info
+                else self._observation.copy())
 
     @abstractmethod
     def _do_init_environment(self) -> None:

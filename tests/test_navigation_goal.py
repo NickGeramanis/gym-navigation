@@ -1,3 +1,5 @@
+import math
+
 import gym
 import numpy as np
 import pytest
@@ -83,12 +85,12 @@ def test_do_calculate_reward_if_goal_reached():
 def test_do_calculate_reward_if_action():
     env = NavigationGoal()
     env._ranges = np.array([2, 1, 10, 4, 5])
+    env._previous_distance_from_goal = 1.1
     env._distance_from_goal = 1
-    env._observation = np.array([2, 1, 10, 4, 5, 3, 0.5])
 
     reward = env._do_calculate_reward(env._FORWARD)
 
-    assert reward == 20
+    assert math.isclose(reward, 1)
 
 
 def test_sanity():

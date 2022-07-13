@@ -44,6 +44,7 @@ class NavigationGoal(NavigationTrack):
 
     _track_id: int
     _distance_from_goal: float
+    _previous_distance_from_goal: float
     _goal: Point
     _observation: np.ndarray
 
@@ -76,9 +77,12 @@ class NavigationGoal(NavigationTrack):
         elif self._distance_from_goal < self._GOAL_THRESHOLD:
             reward = self._GOAL_REWARD
         else:
-            reward = (self._TRANSITION_REWARD_FACTOR
-                      * (self._observation[-2] - self._distance_from_goal))
+            reward = (
+                    self._TRANSITION_REWARD_FACTOR
+                    * (self._previous_distance_from_goal -
+                       self._distance_from_goal))
 
+        self._previous_distance_from_goal = self._distance_from_goal
         return reward
 
     def _do_update_observation(self) -> None:
@@ -111,6 +115,7 @@ class NavigationGoal(NavigationTrack):
         self._goal = goal
         self._distance_from_goal = self._pose.position.calculate_distance(
             self._goal)
+        self._previous_distance_from_goal = self._distance_from_goal
 
     def _init_obstacles(self) -> None:
         self._track = self._TRACKS[self._track_id - 1]
