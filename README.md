@@ -52,10 +52,7 @@ difference between the current and previous step distances from the goal.
 
 ### Prerequisites
 
-The package was implemented and tested with Python 3.8 but previous versions
-can also be used.
-
-Furthermore, the following libraries need to be installed:
+The following libraries need to be installed:
 
 - NumPy
 - Matplotlib
