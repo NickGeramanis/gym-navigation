@@ -5,16 +5,21 @@ from enum import Enum
 class Action(Enum):
     """The Action enum."""
 
-    def __new__(cls, *args, **kwds):
-        value = len(cls.__members__)
+    # pylint: disable=invalid-name
+    linear_shift: float
+    angular_shift: float
+    # pylint: enable=invalid-name
+
+    def __new__(cls,
+                value: int,
+                linear_shift: float = 0,
+                angular_shift: float = 0):
         obj = object.__new__(cls)
         obj._value_ = value
+        obj.linear_shift = linear_shift
+        obj.angular_shift = angular_shift
         return obj
 
-    def __init__(self, linear_shift: float, angular_shift: float) -> None:
-        self.linear_shift = linear_shift
-        self.angular_shift = angular_shift
-
-    FORWARD = 0.2, 0
-    ROTATE_RIGHT = 0.04, 0.2
-    ROTATE_LEFT = 0.04, -0.2
+    FORWARD = (0, 0.2, 0)
+    ROTATE_RIGHT = (1, 0.04, 0.2)
+    ROTATE_LEFT = (2, 0.04, -0.2)

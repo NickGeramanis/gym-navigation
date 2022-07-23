@@ -28,6 +28,6 @@ jobs:
       - name: Show coverage report
         run: coverage report
       - name: Run linter
-        run: pylint gym_navigation/
+        run: pylint --disable=E1101 gym_navigation/
       - name: Run type checker
         run: mypy --ignore-missing-imports gym_navigation/

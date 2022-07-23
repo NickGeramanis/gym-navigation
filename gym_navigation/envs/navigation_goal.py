@@ -5,7 +5,7 @@ from typing import Optional
 import numpy as np
 import pygame
 from gym.spaces import Box
-from pygame.surface import Surface
+from pygame import Surface
 
 from gym_navigation.enums.color import Color
 from gym_navigation.envs.navigation_track import NavigationTrack

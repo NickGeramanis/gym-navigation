@@ -2,14 +2,14 @@
 
 from abc import abstractmethod
 from copy import deepcopy
-from typing import Tuple, Union, Optional, List, Dict, Any
+from typing import Tuple, Optional, List, Dict, Any
 
 import numpy as np
 import pygame
 from gym import Env
 from gym.core import RenderFrame
 from gym.utils.renderer import Renderer
-from pygame.surface import Surface
+from pygame import Surface
 from pygame.time import Clock
 
 from gym_navigation.enums.track import Track
@@ -33,7 +33,7 @@ class Navigation(Env):
     _track: Track
     _world: Tuple[Line, ...]
     _renderer: Renderer
-    _window: Optional[Surface]
+    _window: Optional[pygame.surface.Surface]
     _clock: Optional[Clock]
 
     metadata: Dict[str, Any] = {'render_modes': ['human'], 'render_fps': 30}
@@ -44,9 +44,10 @@ class Navigation(Env):
         if (render_mode is not None
                 and render_mode not in self.metadata['render_modes']):
             raise ValueError(f'Mode {render_mode} is not supported')
-        self.render_mode = render_mode
+        self.render_mode = render_mode # type: ignore
         self._track = Track(track_id)
         self._window = None
+        self._clock = None
         if self.render_mode == 'human':
             pygame.init()
             pygame.display.init()
@@ -89,7 +90,7 @@ class Navigation(Env):
               seed: Optional[int] = None,
               return_info: bool = False,
               options: Optional[dict] = None
-              ) -> Union[np.ndarray, Tuple[np.ndarray, dict]]:
+              ) -> np.ndarray | Tuple[np.ndarray, dict]:
         super().reset(seed=seed)
         self._world = deepcopy(self._track.walls)
         self._do_init_environment()
@@ -109,13 +110,20 @@ class Navigation(Env):
         return self._renderer.get_renders()
 
     def _render_frame(self, mode: str = 'human') -> None:
+        if self._window is None or self._clock is None:
+            return
+
         canvas = Surface((self._WINDOW_SIZE, self._WINDOW_SIZE))
         self._do_draw(canvas)
         self._fork_draw(canvas)
-        self._window.blit(canvas, canvas.get_rect())
-        pygame.event.pump()
-        pygame.display.update()
-        self._clock.tick(self.metadata["render_fps"])
+        if mode == 'human':
+            if self._window is None or self._clock is None:
+                return
+            self._window.blit(canvas, canvas.get_rect())
+            pygame.event.pump()
+            pygame.display.update()
+            self._clock.tick(self.metadata["render_fps"])
+
 
     @abstractmethod
     def _do_draw(self, canvas: Surface) -> None:
