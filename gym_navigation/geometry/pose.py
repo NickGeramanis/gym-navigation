@@ -75,6 +75,9 @@ class Pose:
                 and self.position == other.position
                 and math.isclose(self.yaw, other.yaw))
 
+    def __repr__(self) -> str:
+        return f'Position = {self.position}, Yaw = {self._yaw}'
+
     @property
     def yaw(self) -> float:
         """The rotation (yaw) of the object.

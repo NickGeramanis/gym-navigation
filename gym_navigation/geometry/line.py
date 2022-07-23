@@ -82,3 +82,6 @@ class Line:
         return (isinstance(other, Line)
                 and ((self.start == other.start and self.end == other.end)
                      or (self.start == other.end and self.end == other.start)))
+
+    def __repr__(self) -> str:
+        return f'Start = {self.start}, Yaw = {self.end}'

@@ -55,7 +55,7 @@ difference between the current and previous step distances from the goal.
 The following libraries need to be installed:
 
 - NumPy
-- Matplotlib
+- Pygame
 - OpenAI Gym
 
 ### Installation
@@ -79,14 +79,20 @@ You can create an instance of the environment with the following commands:
 import gym
 
 # NavigationTrack Environment
-env = gym.make('gym_navigation:NavigationTrack-v0', track_id=1)
+env = gym.make('gym_navigation:NavigationTrack-v0',
+               render_mode='human',
+               new_step_api=True,
+               track_id=1)
 ```
 
 ```python
 import gym
 
 # NavigationGoal Environment
-env = gym.make('gym_navigation:NavigationGoal-v0', track_id=1)
+env = gym.make('gym_navigation:NavigationGoal-v0',
+               render_mode='human',
+               new_step_api=True,
+               track_id=2)
 ```
 
 Currently, only one track has been implemented in each environment.

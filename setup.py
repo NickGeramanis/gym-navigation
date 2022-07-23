@@ -3,6 +3,7 @@ from setuptools import setup
 setup(name='gym_navigation',
       version='0.1.0',
       packages=['gym_navigation',
+                'gym_navigation.enums',
                 'gym_navigation.envs',
                 'gym_navigation.geometry'],
       author='Nick Geramanis',
@@ -11,5 +12,4 @@ setup(name='gym_navigation',
       url='https://github.com/NickGeramanis/gym-navigation',
       license='GPLV3',
       python_requires='==3.10.5',
-      install_requires=['gym==0.24.1', 'numpy==1.23.1', 'matplotlib==3.5.2',
-                        'pyqt5==5.15.7'])
+      install_requires=['gym==0.25.0', 'numpy==1.23.1', 'pygame==2.1.2'])
