@@ -70,7 +70,7 @@
     <p>The following libraries need to be installed:</p>
     <ul>
         <li>NumPy</li>
-        <li>Matplotlib</li>
+        <li>Pygame</li>
         <li>OpenAI Gym</li>
     </ul>
     <h4 id="installation">Installation</h4>
@@ -90,13 +90,19 @@
         import gym <br>
         <br>
         # NavigationTrack Environment <br>
-        env = gym.make('gym_navigation:NavigationTrack-v0', track_id=1) <br>
+        env = gym.make('gym_navigation:NavigationTrack-v0',
+               render_mode='human',
+               new_step_api=True,
+               track_id=1) <br>
     </code>
     <code>
         import gym <br>
         <br>
         # NavigationGoal Environment <br>
-        env = gym.make('gym_navigation:NavigationGoal-v0', track_id=1) <br>
+        env = gym.make('gym_navigation:NavigationGoal-v0',
+               render_mode='human',
+               new_step_api=True,
+               track_id=2) <br>
     </code>
     <p>Currently, only one track has been implemented in each environment.</p>
     <p>
