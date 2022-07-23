@@ -1,12 +1,15 @@
 """This module contains the Navigation Track environment class."""
 import copy
 import math
-from typing import Tuple
+from typing import Optional, Tuple
 
-import matplotlib.pyplot as plt
 import numpy as np
+import pygame
 from gym.spaces import Box, Discrete
+from pygame.surface import Surface
 
+from gym_navigation.enums.action import Action
+from gym_navigation.enums.color import Color
 from gym_navigation.envs.navigation import Navigation
 from gym_navigation.geometry.line import Line, NoIntersectionError
 from gym_navigation.geometry.point import Point
@@ -15,15 +18,6 @@ from gym_navigation.geometry.pose import Pose
 
 class NavigationTrack(Navigation):
     """The Navigation Track environment."""
-    _N_ACTIONS = 3
-    _FORWARD = 0
-    _YAW_RIGHT = 1
-    _YAW_LEFT = 2
-
-    _FORWARD_LINEAR_SHIFT = 0.2  # m
-    _YAW_LINEAR_SHIFT = 0.04  # m
-    _YAW_ANGULAR_SHIFT = 0.2  # rad
-
     _SHIFT_STANDARD_DEVIATION = 0.02
     _SENSOR_STANDARD_DEVIATION = 0.02
 
@@ -31,7 +25,7 @@ class NavigationTrack(Navigation):
 
     _COLLISION_REWARD = -200.0
     _FORWARD_REWARD = +5.0
-    _YAW_REWARD = -0.5
+    _ROTATION_REWARD = -0.5
 
     _SCAN_ANGLES = (-math.pi / 2, -math.pi / 4, 0, math.pi / 4, math.pi / 2)
     _SCAN_RANGE_MAX = 30.0
@@ -39,55 +33,17 @@ class NavigationTrack(Navigation):
     _N_MEASUREMENTS = len(_SCAN_ANGLES)
     _N_OBSERVATIONS = _N_MEASUREMENTS
 
-    _Y_LIM = (-12, 12)
-    _X_LIM = (-12, 12)
-
-    _TRACK1: Tuple[Line, ...] = (
-        Line(Point(-10, -10), Point(-10, 10)),
-        Line(Point(-10, 10), Point(10, 10)),
-        Line(Point(10, 10), Point(10, -1.5)),
-        Line(Point(10, -1.5), Point(1.5, -1.5)),
-        Line(Point(1.5, -1.5), Point(1.5, -10)),
-        Line(Point(1.5, -10), Point(-10, -10)),
-
-        Line(Point(-7, -7), Point(-7, 7)),
-        Line(Point(-7, 7), Point(7, 7)),
-        Line(Point(7, 7), Point(7, 1.5)),
-        Line(Point(7, 1.5), Point(-1.5, 1.5)),
-        Line(Point(-1.5, 1.5), Point(-1.5, -7)),
-        Line(Point(-1.5, -7), Point(-7, -7))
-    )
-
-    _TRACKS = (_TRACK1,)
-
-    _SPAWN_AREA1: Tuple[
-        Tuple[Tuple[float, float], Tuple[float, float]], ...] = (
-        ((-8.5, -8.5), (-8.5, 8.5)),
-        ((-8.5, 8.5), (8.5, 8.5)),
-        ((8.5, 8.5), (0, 8.5)),
-        ((0, 8.5), (0, 0)),
-        ((0, 0), (-8.5, 0)),
-        ((-8.5, 0), (-8.5, -8.5))
-    )
-
-    _SPAWN_AREAS = (_SPAWN_AREA1,)
-
-    _track: Tuple[Line, ...]
-    _spawn_area: Tuple[Tuple[Tuple[float, float], Tuple[float, float]], ...]
     _pose: Pose
     _ranges: np.ndarray
-    _observation: np.ndarray
 
-    def __init__(self, track_id: int = 1) -> None:
-        if track_id in range(1, len(self._TRACKS) + 1):
-            self._track = self._TRACKS[track_id - 1]
-            self._spawn_area = self._SPAWN_AREAS[track_id - 1]
-        else:
-            raise ValueError(f'Invalid track id {track_id} ({type(track_id)})')
+    def __init__(self,
+                 render_mode: Optional[str] = None,
+                 track_id: int = 1) -> None:
+        super().__init__(render_mode, track_id)
 
         self._ranges = np.empty(self._N_MEASUREMENTS)
 
-        self.action_space = Discrete(self._N_ACTIONS)
+        self.action_space = Discrete(len(Action))
 
         self.observation_space = Box(low=self._SCAN_RANGE_MIN,
                                      high=self._SCAN_RANGE_MAX,
@@ -95,18 +51,11 @@ class NavigationTrack(Navigation):
                                      dtype=np.float64)
 
     def _do_perform_action(self, action: int) -> None:
-        theta = self.np_random.normal(0, self._SHIFT_STANDARD_DEVIATION)
-        distance = self.np_random.normal(0, self._SHIFT_STANDARD_DEVIATION)
-
-        if action == self._FORWARD:
-            distance += self._FORWARD_LINEAR_SHIFT
-        elif action == self._YAW_RIGHT:
-            distance += self._YAW_LINEAR_SHIFT
-            theta += self._YAW_ANGULAR_SHIFT
-        else:
-            distance += self._YAW_LINEAR_SHIFT
-            theta -= self._YAW_ANGULAR_SHIFT
-
+        action_enum = Action(action)
+        theta = (self.np_random.normal(0, self._SHIFT_STANDARD_DEVIATION)
+                 + action_enum.angular_shift)
+        distance = (self.np_random.normal(0, self._SHIFT_STANDARD_DEVIATION)
+                    + action_enum.linear_shift)
         self._pose.shift(distance, theta)
 
     def _do_update_observation(self) -> None:
@@ -117,7 +66,7 @@ class NavigationTrack(Navigation):
         scan_lines = self._create_scan_lines()
         for i, scan_line in enumerate(scan_lines):
             min_distance = self._SCAN_RANGE_MAX
-            for wall in self._track:
+            for wall in self._world:
                 try:
                     intersection = scan_line.get_intersection(wall)
                 except NoIntersectionError:
@@ -151,7 +100,7 @@ class NavigationTrack(Navigation):
 
         return scan_poses
 
-    def _do_check_if_done(self) -> bool:
+    def _do_check_if_terminated(self) -> bool:
         return self._collision_occurred()
 
     def _collision_occurred(self) -> bool:
@@ -160,10 +109,10 @@ class NavigationTrack(Navigation):
     def _do_calculate_reward(self, action: int) -> float:
         if self._collision_occurred():
             reward = self._COLLISION_REWARD
-        elif action == self._FORWARD:
+        elif action == Action.FORWARD.value:
             reward = self._FORWARD_REWARD
         else:
-            reward = self._YAW_REWARD
+            reward = self._ROTATION_REWARD
 
         return reward
 
@@ -171,37 +120,41 @@ class NavigationTrack(Navigation):
         self._init_pose()
 
     def _init_pose(self) -> None:
-        area = self.np_random.choice(self._spawn_area)
+        area = self.np_random.choice(self._track.spawn_area)
         x_coordinate = self.np_random.uniform(area[0][0], area[0][1])
         y_coordinate = self.np_random.uniform(area[1][0], area[1][1])
         position = Point(x_coordinate, y_coordinate)
         yaw = self.np_random.uniform(-math.pi, math.pi)
         self._pose = Pose(position, yaw)
 
-    def _do_plot(self) -> None:
-        plt.xlim(self._X_LIM)
-        plt.ylim(self._Y_LIM)
+    def _do_draw(self, canvas: Surface) -> None:
+        canvas.fill(Color.WHITE.value)
 
-        for wall in self._track:
-            x_range = (wall.start.x_coordinate, wall.end.x_coordinate)
-            y_range = (wall.start.y_coordinate, wall.end.y_coordinate)
-            plt.plot(x_range, y_range, 'b')
-
-        scan_lines = self._create_scan_lines()
-        for scan_line in scan_lines:
-            x_range = (scan_line.start.x_coordinate,
-                       scan_line.end.x_coordinate)
-            y_range = (scan_line.start.y_coordinate,
-                       scan_line.end.y_coordinate)
-            plt.plot(x_range, y_range, 'y')
+        for wall in self._world:
+            pygame.draw.line(canvas,
+                             Color.BLACK.value,
+                             self._convert_point(wall.start),
+                             self._convert_point(wall.end),
+                             self._WIDTH)
 
         scan_poses = self._create_scan_poses()
         for i, scan_pose in enumerate(scan_poses):
             scan_pose.move(self._ranges[i])
-            plt.plot(scan_pose.position.x_coordinate,
-                     scan_pose.position.y_coordinate,
-                     'co')
+            pygame.draw.line(canvas,
+                             Color.RED.value,
+                             self._convert_point(self._pose.position),
+                             self._convert_point(scan_pose.position),
+                             self._WIDTH)
 
-        plt.plot(self._pose.position.x_coordinate,
-                 self._pose.position.y_coordinate,
-                 'ro')
+        pygame.draw.circle(canvas,
+                           Color.BLUE.value,
+                           self._convert_point(self._pose.position),
+                           self._COLLISION_THRESHOLD * self._RESOLUTION)
+
+    def _convert_point(self, point: Point) -> Tuple[int, int]:
+        pygame_x = (round(point.x_coordinate * self._RESOLUTION)
+                    + self._X_OFFSET)
+        pygame_y = (self._WINDOW_SIZE
+                    - round(point.y_coordinate * self._RESOLUTION)
+                    + self._Y_OFFSET)
+        return pygame_x, pygame_y

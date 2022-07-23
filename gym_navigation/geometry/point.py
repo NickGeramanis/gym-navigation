@@ -24,3 +24,6 @@ class Point:
         return (isinstance(other, Point)
                 and math.isclose(self.x_coordinate, other.x_coordinate)
                 and math.isclose(self.y_coordinate, other.y_coordinate))
+
+    def __repr__(self) -> str:
+        return f'({self.x_coordinate}, {self.y_coordinate})'

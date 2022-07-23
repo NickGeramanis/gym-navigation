@@ -1,10 +1,13 @@
 """This module contains the Navigation Goal environment class."""
 import math
+from typing import Optional
 
-import matplotlib.pyplot as plt
 import numpy as np
+import pygame
 from gym.spaces import Box
+from pygame.surface import Surface
 
+from gym_navigation.enums.color import Color
 from gym_navigation.envs.navigation_track import NavigationTrack
 from gym_navigation.geometry.line import Line
 from gym_navigation.geometry.point import Point
@@ -21,36 +24,20 @@ class NavigationGoal(NavigationTrack):
     _TRANSITION_REWARD_FACTOR = 10
     _GOAL_REWARD = 200.0
 
-    _MAXIMUM_GOAL_DISTANCE = math.inf
+    _MAXIMUM_GOAL_DISTANCE = 100
     _N_OBSERVATIONS = NavigationTrack._N_MEASUREMENTS + 2
 
     _N_OBSTACLES = 20
     _OBSTACLES_LENGTH = 1
 
-    _TRACK1 = (
-        Line(Point(-10, -10), Point(-10, 10)),
-        Line(Point(-10, 10), Point(10, 10)),
-        Line(Point(10, 10), Point(10, -10)),
-        Line(Point(10, -10), Point(-10, -10))
-    )
-
-    _TRACKS = (_TRACK1,)
-
-    _SPAWN_AREA1 = (
-        ((-9, 9), (-9, 9)),
-    )
-
-    _SPAWN_AREAS = (_SPAWN_AREA1,)
-
-    _track_id: int
     _distance_from_goal: float
     _previous_distance_from_goal: float
     _goal: Point
-    _observation: np.ndarray
 
-    def __init__(self, track_id: int = 1) -> None:
-        super().__init__(track_id)
-        self._track_id = track_id
+    def __init__(self,
+                 render_mode: Optional[str] = None,
+                 track_id: int = 2) -> None:
+        super().__init__(render_mode, track_id)
 
         high = np.array(self._N_MEASUREMENTS * [self._SCAN_RANGE_MAX]
                         + [self._MAXIMUM_GOAL_DISTANCE]
@@ -67,7 +54,7 @@ class NavigationGoal(NavigationTrack):
                                      shape=(self._N_OBSERVATIONS,),
                                      dtype=np.float64)
 
-    def _do_check_if_done(self) -> bool:
+    def _do_check_if_terminated(self) -> bool:
         return (self._collision_occurred()
                 or self._distance_from_goal < self._GOAL_THRESHOLD)
 
@@ -104,7 +91,7 @@ class NavigationGoal(NavigationTrack):
 
     def _init_goal(self) -> None:
         while True:
-            area = self.np_random.choice(self._spawn_area)
+            area = self.np_random.choice(self._track.spawn_area)
             x_coordinate = self.np_random.uniform(area[0][0], area[0][1])
             y_coordinate = self.np_random.uniform(area[1][0], area[1][1])
             goal = Point(x_coordinate, y_coordinate)
@@ -118,12 +105,9 @@ class NavigationGoal(NavigationTrack):
         self._previous_distance_from_goal = self._distance_from_goal
 
     def _init_obstacles(self) -> None:
-        self._track = self._TRACKS[self._track_id - 1]
-        # Don't check for overlapping obstacles
-        # in order to create strange shapes.
         for _ in range(self._N_OBSTACLES):
             while True:
-                area = self.np_random.choice(self._spawn_area)
+                area = self.np_random.choice(self._track.spawn_area)
                 x_coordinate = self.np_random.uniform(area[0][0], area[0][1])
                 y_coordinate = self.np_random.uniform(area[1][0], area[1][1])
                 obstacles_center = Point(x_coordinate, y_coordinate)
@@ -149,10 +133,13 @@ class NavigationGoal(NavigationTrack):
                 obstacles_center.x_coordinate + self._OBSTACLES_LENGTH / 2,
                 obstacles_center.y_coordinate - self._OBSTACLES_LENGTH / 2)
 
-            self._track += (Line(point1, point2),)
-            self._track += (Line(point2, point3),)
-            self._track += (Line(point3, point4),)
-            self._track += (Line(point4, point1),)
+            self._world += (Line(point1, point2),)
+            self._world += (Line(point2, point3),)
+            self._world += (Line(point3, point4),)
+            self._world += (Line(point4, point1),)
 
-    def _fork_plot(self) -> None:
-        plt.plot(self._goal.x_coordinate, self._goal.y_coordinate, 'go')
+    def _fork_draw(self, canvas: Surface) -> None:
+        pygame.draw.circle(canvas,
+                           Color.GREEN.value,
+                           self._convert_point(self._goal),
+                           self._GOAL_THRESHOLD * self._RESOLUTION)
