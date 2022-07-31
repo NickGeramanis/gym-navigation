@@ -57,10 +57,7 @@ class NavigationTrack(Navigation):
         distance = (self.np_random.normal(0, self._SHIFT_STANDARD_DEVIATION)
                     + action_enum.linear_shift)
         self._pose.shift(distance, theta)
-
-    def _do_update_observation(self) -> None:
         self._update_scan()
-        self._observation = self._ranges
 
     def _update_scan(self) -> None:
         scan_lines = self._create_scan_lines()
@@ -100,6 +97,9 @@ class NavigationTrack(Navigation):
 
         return scan_poses
 
+    def _do_get_observation(self) -> np.ndarray:
+        return self._ranges.copy()
+
     def _do_check_if_terminated(self) -> bool:
         return self._collision_occurred()
 
@@ -116,8 +116,12 @@ class NavigationTrack(Navigation):
 
         return reward
 
-    def _do_init_environment(self) -> None:
+    def _do_init_environment(self, options: Optional[dict] = None) -> None:
         self._init_pose()
+        self._update_scan()
+
+    def _do_create_info(self) -> dict:
+        return {}
 
     def _init_pose(self) -> None:
         area = self.np_random.choice(self._track.spawn_area)

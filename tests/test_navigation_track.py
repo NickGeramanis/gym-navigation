@@ -9,13 +9,13 @@ from gym_navigation.envs.navigation_track import NavigationTrack
 from gym_navigation.geometry.point import Point
 from gym_navigation.geometry.pose import Pose
 
-
 ATOL = 0.06
 
 
-def test_forward_action():
+def test_do_perform_action_forward():
     env = NavigationTrack()
     env._pose = Pose(Point(0, 8.5), 0)
+    env._world = env._track.walls
 
     env._do_perform_action(Action.FORWARD.value)
 
@@ -24,9 +24,10 @@ def test_forward_action():
     assert math.isclose(env._pose.yaw, 0, abs_tol=ATOL)
 
 
-def test_rotate_left_action():
+def test_do_perform_action_rotate_left():
     env = NavigationTrack()
     env._pose = Pose(Point(0, 8.5), 0)
+    env._world = env._track.walls
 
     env._do_perform_action(Action.ROTATE_LEFT.value)
 
@@ -35,9 +36,10 @@ def test_rotate_left_action():
     assert math.isclose(env._pose.yaw, -0.2, abs_tol=ATOL)
 
 
-def test_rotate_right_action():
+def test_do_perform_action_rotate_right():
     env = NavigationTrack()
     env._pose = Pose(Point(0, 8.5), 0)
+    env._world = env._track.walls
 
     env._do_perform_action(Action.ROTATE_RIGHT.value)
 
@@ -46,24 +48,7 @@ def test_rotate_right_action():
     assert math.isclose(env._pose.yaw, 0.2, abs_tol=ATOL)
 
 
-def test_do_update_observation():
-    env = NavigationTrack()
-    env._pose = Pose(Point(10, 19), 0.785398163398)
-    env._world = env._track.walls
-
-    env._do_update_observation()
-
-    expected_observation = [1.40639877,
-                            1.00027205,
-                            1.41223102,
-                            10.00190892,
-                            2.82151645]
-    assert np.allclose(env._observation,
-                       expected_observation,
-                       atol=ATOL)
-
-
-def test_do_check_if_done_true():
+def test_do_check_if_terminated_true():
     env = NavigationTrack()
     env._ranges = np.array([0.5, 1, 0.01, 4, 5])
 
@@ -72,7 +57,7 @@ def test_do_check_if_done_true():
     assert done
 
 
-def test_do_check_if_done_false():
+def test_do_check_if_terminated_false():
     env = NavigationTrack()
     env._ranges = np.array([2, 1, 10, 4, 5])
 
@@ -111,6 +96,7 @@ def test_do_calculate_reward_if_rotate():
 
 def test_do_init_environment():
     env = NavigationTrack()
+    env._world = env._track.walls
 
     env._do_init_environment()
 

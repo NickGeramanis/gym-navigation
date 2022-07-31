@@ -54,14 +54,29 @@ class NavigationGoal(NavigationTrack):
                                      shape=(self._N_OBSERVATIONS,),
                                      dtype=np.float64)
 
+    def _do_perform_action(self, action: int) -> None:
+        super()._do_perform_action(action)
+        self._distance_from_goal = (
+                self._DISTANCE_STANDARD_DEVIATION
+                + self._pose.position.calculate_distance(self._goal))
+
+    def _do_get_observation(self) -> np.ndarray:
+        angle_from_goal = (self._ANGLE_STANDARD_DEVIATION
+                           + self._pose.calculate_angle_difference(self._goal))
+        return np.append(
+            self._ranges.copy(),
+            [self._distance_from_goal, angle_from_goal])
+
     def _do_check_if_terminated(self) -> bool:
-        return (self._collision_occurred()
-                or self._distance_from_goal < self._GOAL_THRESHOLD)
+        return self._collision_occurred() or self._goal_reached()
+
+    def _goal_reached(self) -> bool:
+        return self._distance_from_goal < self._GOAL_THRESHOLD
 
     def _do_calculate_reward(self, action: int) -> float:
         if self._collision_occurred():
             reward = self._COLLISION_REWARD
-        elif self._distance_from_goal < self._GOAL_THRESHOLD:
+        elif self._goal_reached():
             reward = self._GOAL_REWARD
         else:
             reward = (
@@ -72,22 +87,11 @@ class NavigationGoal(NavigationTrack):
         self._previous_distance_from_goal = self._distance_from_goal
         return reward
 
-    def _do_update_observation(self) -> None:
-        self._update_scan()
-        self._distance_from_goal = (
-                self._DISTANCE_STANDARD_DEVIATION
-                + self._pose.position.calculate_distance(self._goal))
-        angle_from_goal = (self._ANGLE_STANDARD_DEVIATION
-                           + self._pose.calculate_angle_difference(self._goal))
-
-        self._observation = np.append(
-            self._ranges,
-            [self._distance_from_goal, angle_from_goal])
-
-    def _do_init_environment(self) -> None:
+    def _do_init_environment(self, options: Optional[dict] = None) -> None:
         self._init_pose()
         self._init_goal()
         self._init_obstacles()
+        self._update_scan()
 
     def _init_goal(self) -> None:
         while True:
@@ -138,7 +142,8 @@ class NavigationGoal(NavigationTrack):
             self._world += (Line(point3, point4),)
             self._world += (Line(point4, point1),)
 
-    def _fork_draw(self, canvas: Surface) -> None:
+    def _do_draw(self, canvas: Surface) -> None:
+        super()._do_draw(canvas)
         pygame.draw.circle(canvas,
                            Color.GREEN.value,
                            self._convert_point(self._goal),

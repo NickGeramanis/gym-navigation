@@ -29,12 +29,11 @@ class Navigation(Env):
     _X_OFFSET = 150
     _Y_OFFSET = -150
 
-    _observation: np.ndarray
     _track: Track
     _world: Tuple[Line, ...]
     _renderer: Renderer
-    _window: Optional[pygame.surface.Surface]
-    _clock: Optional[Clock]
+    _window: Optional[pygame.surface.Surface] = None
+    _clock: Optional[Clock] = None
 
     metadata: Dict[str, Any] = {'render_modes': ['human'], 'render_fps': 30}
 
@@ -44,10 +43,8 @@ class Navigation(Env):
         if (render_mode is not None
                 and render_mode not in self.metadata['render_modes']):
             raise ValueError(f'Mode {render_mode} is not supported')
-        self.render_mode = render_mode # type: ignore
+        self.render_mode = render_mode  # type: ignore
         self._track = Track(track_id)
-        self._window = None
-        self._clock = None
         if self.render_mode == 'human':
             pygame.init()
             pygame.display.init()
@@ -61,16 +58,21 @@ class Navigation(Env):
             raise ValueError(f'Invalid action {action} ({type(action)})')
 
         self._do_perform_action(action)
-        self._do_update_observation()
-        self._renderer.render_step()
+        observation = self._do_get_observation()
         terminated = self._do_check_if_terminated()
         truncated = False
         reward = self._do_calculate_reward(action)
+        info = self._do_create_info()
+        self._renderer.render_step()
 
-        return self._observation.copy(), reward, terminated, truncated, {}
+        return observation, reward, terminated, truncated, info
 
     @abstractmethod
     def _do_perform_action(self, action: int) -> None:
+        pass
+
+    @abstractmethod
+    def _do_get_observation(self) -> np.ndarray:
         pass
 
     @abstractmethod
@@ -82,7 +84,7 @@ class Navigation(Env):
         pass
 
     @abstractmethod
-    def _do_update_observation(self) -> None:
+    def _do_create_info(self) -> dict:
         pass
 
     def reset(self,
@@ -93,15 +95,15 @@ class Navigation(Env):
               ) -> np.ndarray | Tuple[np.ndarray, dict]:
         super().reset(seed=seed)
         self._world = deepcopy(self._track.walls)
-        self._do_init_environment()
-        self._do_update_observation()
+        self._do_init_environment(options)
+        observation = self._do_get_observation()
+        info = self._do_create_info()
         self._renderer.reset()
         self._renderer.render_step()
-        return ((self._observation.copy(), {}) if return_info
-                else self._observation.copy())
+        return (observation, info) if return_info else observation
 
     @abstractmethod
-    def _do_init_environment(self) -> None:
+    def _do_init_environment(self, options: Optional[dict] = None) -> None:
         pass
 
     def render(self,
@@ -115,7 +117,6 @@ class Navigation(Env):
 
         canvas = Surface((self._WINDOW_SIZE, self._WINDOW_SIZE))
         self._do_draw(canvas)
-        self._fork_draw(canvas)
         if mode == 'human':
             if self._window is None or self._clock is None:
                 return
@@ -127,9 +128,6 @@ class Navigation(Env):
 
     @abstractmethod
     def _do_draw(self, canvas: Surface) -> None:
-        pass
-
-    def _fork_draw(self, canvas: Surface) -> None:
         pass
 
     def close(self) -> None:
