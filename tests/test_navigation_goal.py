@@ -6,32 +6,11 @@ from gym.utils.env_checker import check_env
 
 from gym_navigation.enums.action import Action
 from gym_navigation.envs.navigation_goal import NavigationGoal
-from gym_navigation.geometry.point import Point
-from gym_navigation.geometry.pose import Pose
-
 
 ATOL = 0.06
 
 
-def test_do_update_observation():
-    env = NavigationGoal()
-    env._pose = Pose(Point(10, 19), 0.785398163398)
-    env._goal = Point(1.5, 8.5)
-    env._world = env._track.walls
-
-    env._do_update_observation()
-
-    expected_observation = [1.40522846,
-                            0.99914384,
-                            1.4555813,
-                            10.03476728,
-                            14.12835797,
-                            13.52925609,
-                            3.05671571]
-    assert np.allclose(env._observation, expected_observation, atol=ATOL)
-
-
-def test_do_check_if_done_true_collision():
+def test_do_check_if_terminated_true_collision():
     env = NavigationGoal()
     env._ranges = np.array([0.5, 1, 0.01, 4, 5])
     env._distance_from_goal = 10
@@ -41,7 +20,7 @@ def test_do_check_if_done_true_collision():
     assert done
 
 
-def test_do_check_if_done_true_goal_reached():
+def test_do_check_if_terminated_true_goal_reached():
     env = NavigationGoal()
     env._ranges = np.array([2, 1, 10, 4, 5])
     env._distance_from_goal = 0.01
@@ -51,7 +30,7 @@ def test_do_check_if_done_true_goal_reached():
     assert done
 
 
-def test_do_check_if_done_false():
+def test_do_check_if_terminated_false():
     env = NavigationGoal()
     env._ranges = np.array([2, 1, 10, 4, 5])
     env._distance_from_goal = 10

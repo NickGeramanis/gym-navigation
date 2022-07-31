@@ -12,6 +12,7 @@ env = gym.make('gym_navigation:NavigationTrack-v0',
 # env.action_space.seed(42)
 
 observation, info = env.reset(seed=42, return_info=True)
+print(f'observation={observation} info={info}')
 
 for _ in range(1000):
     action = env.action_space.sample()
@@ -19,9 +20,11 @@ for _ in range(1000):
     print(f'action={action} '
           f'observation={observation} '
           f'reward={reward} '
-          f'terminated={terminated}')
+          f'terminated={terminated} '
+          f'info={info}')
 
     if terminated:
         observation, info = env.reset(return_info=True)
+        print(f'observation={observation} info={info}')
 
 env.close()
