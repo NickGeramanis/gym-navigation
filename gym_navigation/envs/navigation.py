@@ -2,13 +2,12 @@
 
 from abc import abstractmethod
 from copy import deepcopy
-from typing import Tuple, Optional, List, Dict, Any
+from typing import Tuple, Optional, List, Dict, Any, Union
 
 import numpy as np
 import pygame
 from gym import Env
 from gym.core import RenderFrame
-from gym.utils.renderer import Renderer
 from pygame import Surface
 from pygame.time import Clock
 
@@ -31,7 +30,6 @@ class Navigation(Env):
 
     _track: Track
     _world: Tuple[Line, ...]
-    _renderer: Renderer
     _window: Optional[pygame.surface.Surface] = None
     _clock: Optional[Clock] = None
 
@@ -51,7 +49,6 @@ class Navigation(Env):
             self._window = pygame.display.set_mode(
                 (self._WINDOW_SIZE, self._WINDOW_SIZE))
             self._clock = Clock()
-        self._renderer = Renderer(self.render_mode, self._render_frame)
 
     def step(self, action: int) -> Tuple[np.ndarray, float, bool, bool, dict]:
         if not self.action_space.contains(action):
@@ -63,7 +60,9 @@ class Navigation(Env):
         truncated = False
         reward = self._do_calculate_reward(action)
         info = self._do_create_info()
-        self._renderer.render_step()
+
+        if self.render_mode == "human":
+            self._render_frame()
 
         return observation, reward, terminated, truncated, info
 
@@ -90,26 +89,24 @@ class Navigation(Env):
     def reset(self,
               *,
               seed: Optional[int] = None,
-              return_info: bool = False,
-              options: Optional[dict] = None
-              ) -> np.ndarray | Tuple[np.ndarray, dict]:
+              options: Optional[dict] = None) -> Tuple[np.ndarray, dict]:
         super().reset(seed=seed)
         self._world = deepcopy(self._track.walls)
         self._do_init_environment(options)
         observation = self._do_get_observation()
         info = self._do_create_info()
-        self._renderer.reset()
-        self._renderer.render_step()
-        return (observation, info) if return_info else observation
+
+        if self.render_mode == "human":
+            self._render_frame()
+
+        return observation, info
 
     @abstractmethod
     def _do_init_environment(self, options: Optional[dict] = None) -> None:
         pass
 
-    def render(self,
-               mode: str = 'human'
-               ) -> Optional[List[RenderFrame]]:
-        return self._renderer.get_renders()
+    def render(self) -> Optional[Union[RenderFrame, List[RenderFrame]]]:
+        return None
 
     def _render_frame(self, mode: str = 'human') -> None:
         if self._window is None or self._clock is None:
@@ -124,7 +121,6 @@ class Navigation(Env):
             pygame.event.pump()
             pygame.display.update()
             self._clock.tick(self.metadata["render_fps"])
-
 
     @abstractmethod
     def _do_draw(self, canvas: Surface) -> None:

@@ -81,7 +81,6 @@ import gym
 # NavigationTrack Environment
 env = gym.make('gym_navigation:NavigationTrack-v0',
                render_mode='human',
-               new_step_api=True,
                track_id=1)
 ```
 
@@ -91,7 +90,6 @@ import gym
 # NavigationGoal Environment
 env = gym.make('gym_navigation:NavigationGoal-v0',
                render_mode='human',
-               new_step_api=True,
                track_id=2)
 ```
 

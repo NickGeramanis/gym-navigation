@@ -81,7 +81,5 @@ def test_do_init_environment():
 
 
 def test_sanity():
-    env = gym.make('gym_navigation:NavigationGoal-v0',
-                   new_step_api=True,
-                   track_id=2)
+    env = gym.make('gym_navigation:NavigationGoal-v0', track_id=2)
     check_env(env.unwrapped)
