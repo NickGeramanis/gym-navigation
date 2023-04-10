@@ -1,4 +1,4 @@
-# Navigation Environment for [OpenAI Gym](https://gym.openai.com/)
+# Navigation Environment for [Gymnasium](https://gymnasium.farama.org)
 
 The navigation environment is a single-agent domain featuring discrete
 action-space and continuous state-space. It is a simulation of the autonomous
@@ -56,7 +56,7 @@ The following libraries need to be installed:
 
 - NumPy
 - Pygame
-- OpenAI Gym
+- Gymnasium
 
 ### Installation
 
@@ -76,7 +76,7 @@ reinforcement learning algorithms.
 You can create an instance of the environment with the following commands:
 
 ```python
-import gym
+import gymnasium as gym
 
 # NavigationTrack Environment
 env = gym.make('gym_navigation:NavigationTrack-v0',
@@ -85,7 +85,7 @@ env = gym.make('gym_navigation:NavigationTrack-v0',
 ```
 
 ```python
-import gym
+import gymnasium as gym
 
 # NavigationGoal Environment
 env = gym.make('gym_navigation:NavigationGoal-v0',

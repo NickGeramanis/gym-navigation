@@ -1,4 +1,4 @@
-import gym
+import gymnasium as gym
 
 
 env = gym.make('gym_navigation:NavigationTrack-v0',

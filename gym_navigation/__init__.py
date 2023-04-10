@@ -1,5 +1,5 @@
 """This __init__ file is used to register the environments."""
-from gym.envs.registration import register
+from gymnasium.envs.registration import register
 
 register(
     id='NavigationTrack-v0',

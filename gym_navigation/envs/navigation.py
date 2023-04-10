@@ -6,8 +6,8 @@ from typing import Tuple, Optional, List, Dict, Any, Union
 
 import numpy as np
 import pygame
-from gym import Env
-from gym.core import RenderFrame
+from gymnasium import Env
+from gymnasium.core import RenderFrame
 from pygame import Surface
 from pygame.time import Clock
 
