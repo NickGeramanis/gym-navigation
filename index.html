@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta content="width=device-width, initial-scale=1" name="viewport"/>
-    <title>Navigation Environment for OpenAI Gym</title>
+    <title>Navigation Environment for Gymnasium</title>
     <link href="style.css" rel="stylesheet"/>
 </head>
 
@@ -17,7 +17,7 @@
 <div class="main">
     <h1 id="home">
         Navigation Environment for
-        <a href="https://gym.openai.com/">OpenAI Gym</a>
+        <a href="https://gymnasium.farama.org">Gymnasium</a>
     </h1>
     <a href="https://github.com/NickGeramanis/gym-navigation">
         <img
@@ -71,7 +71,7 @@
     <ul>
         <li>NumPy</li>
         <li>Pygame</li>
-        <li>OpenAI Gym</li>
+        <li>Gymnasium</li>
     </ul>
     <h4 id="installation">Installation</h4>
     <p>Install the package with:</p>
@@ -87,7 +87,7 @@
     </p>
     <p>You can create an instance of the environment with:</p>
     <code>
-        import gym <br>
+        import gymnasium as gym <br>
         <br>
         # NavigationTrack Environment <br>
         env = gym.make('gym_navigation:NavigationTrack-v0',
@@ -95,7 +95,7 @@
                track_id=1) <br>
     </code>
     <code>
-        import gym <br>
+        import gymnasium as gym <br>
         <br>
         # NavigationGoal Environment <br>
         env = gym.make('gym_navigation:NavigationGoal-v0',
