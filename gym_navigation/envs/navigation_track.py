@@ -5,7 +5,7 @@ from typing import Optional, Tuple
 
 import numpy as np
 import pygame
-from gym.spaces import Box, Discrete
+from gymnasium.spaces import Box, Discrete
 from pygame import Surface
 
 from gym_navigation.enums.action import Action

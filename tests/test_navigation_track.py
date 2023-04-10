@@ -1,8 +1,8 @@
 import math
 
-import gym
+import gymnasium as gym
 import numpy as np
-from gym.utils.env_checker import check_env
+from gymnasium.utils.env_checker import check_env
 
 from gym_navigation.enums.action import Action
 from gym_navigation.envs.navigation_track import NavigationTrack

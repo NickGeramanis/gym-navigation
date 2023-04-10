@@ -4,7 +4,7 @@ from typing import Optional
 
 import numpy as np
 import pygame
-from gym.spaces import Box
+from gymnasium.spaces import Box
 from pygame import Surface
 
 from gym_navigation.enums.color import Color
