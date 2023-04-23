@@ -121,7 +121,7 @@ class NavigationGoal(NavigationTrack):
                     self._goal)
 
                 if (distance_from_pose > self._MINIMUM_DISTANCE
-                        or distance_from_goal < self._MINIMUM_DISTANCE):
+                        and distance_from_goal > self._MINIMUM_DISTANCE):
                     break
 
             point1 = Point(
