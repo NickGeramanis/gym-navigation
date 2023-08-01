@@ -22,6 +22,8 @@ class Line:
     def __init__(self, start: Point, end: Point) -> None:
         self.start = start
         self.end = end
+        if start == end:
+            raise RuntimeError('Equal start and end points of the line')
         if start.x_coordinate == end.x_coordinate:  # Vertical line
             self.slope = 0
             self.y_intercept = math.inf
@@ -39,8 +41,8 @@ class Line:
 
         Raise an error if it does not exist.
         """
-        if self.slope == other.slope:  # Parallel lines
-            raise NoIntersectionError
+        if self.slope == other.slope:
+            raise NoIntersectionError('Parallel lines')
 
         if self.start.x_coordinate == self.end.x_coordinate:
             x_coordinate = self.start.x_coordinate
@@ -64,7 +66,7 @@ class Line:
         if self.contains(intersection) and other.contains(intersection):
             return intersection
 
-        raise NoIntersectionError
+        raise NoIntersectionError('No intersection')
 
     def contains(self, point: Point) -> bool:
         """Calculate if the line contains a given point."""
@@ -84,4 +86,4 @@ class Line:
                      or (self.start == other.end and self.end == other.start)))
 
     def __repr__(self) -> str:
-        return f'Start = {self.start}, Yaw = {self.end}'
+        return f'[{self.start}, {self.end}]'

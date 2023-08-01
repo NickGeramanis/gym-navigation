@@ -93,3 +93,8 @@ def test_correct_slope_and_y_intercept_horizontal_line():
     line = Line(Point(0, 2), Point(10, 2))
 
     assert line.slope == 0 and line.y_intercept == 2
+
+
+def test_same_start_end_points():
+    with pytest.raises(RuntimeError):
+        _ = Line(Point(0, 0), Point(0, 0))

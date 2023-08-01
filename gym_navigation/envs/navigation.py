@@ -41,7 +41,7 @@ class Navigation(Env):
         if (render_mode is not None
                 and render_mode not in self.metadata['render_modes']):
             raise ValueError(f'Mode {render_mode} is not supported')
-        self.render_mode = render_mode  # type: ignore
+        self.render_mode = render_mode
         self._track = Track(track_id)
         if self.render_mode == 'human':
             pygame.init()

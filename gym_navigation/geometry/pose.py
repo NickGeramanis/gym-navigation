@@ -76,7 +76,7 @@ class Pose:
                 and math.isclose(self.yaw, other.yaw))
 
     def __repr__(self) -> str:
-        return f'Position = {self.position}, Yaw = {self._yaw}'
+        return f'[{self.position}, {self._yaw}]'
 
     @property
     def yaw(self) -> float:

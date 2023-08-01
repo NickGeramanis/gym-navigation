@@ -9,10 +9,8 @@ from gym_navigation.geometry.point import Point
 class Track(Enum):
     """The Track enum."""
 
-    # pylint: disable=invalid-name
     walls: Tuple[Line, ...]
     spawn_area: Tuple[Tuple[Tuple[float, float], Tuple[float, float]], ...]
-    # pylint: enable=invalid-name
 
     def __new__(cls,
                 value: int,

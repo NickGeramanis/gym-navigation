@@ -5,10 +5,8 @@ from enum import Enum
 class Action(Enum):
     """The Action enum."""
 
-    # pylint: disable=invalid-name
     linear_shift: float
     angular_shift: float
-    # pylint: enable=invalid-name
 
     def __new__(cls,
                 value: int,
