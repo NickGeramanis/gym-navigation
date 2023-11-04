@@ -1,7 +1,7 @@
 # Navigation Environment for [Gymnasium](https://gymnasium.farama.org)
 
 The navigation environment is a single-agent domain featuring discrete
-action-space and continuous state-space. It is a simulation of the autonomous
+action space and continuous state space. It is a simulation of the autonomous
 navigation problem in robotics.
 
 ## Table of Contents
@@ -25,8 +25,8 @@ The environment provides two tasks:
 
 The goal of this environment is to navigate a robot on a track without crashing
 into the walls. Initially, the robot is placed randomly into the track but at a
-safe distance from the walls. The state-space consists of 5 range measurements.
-The action-space consists of 3 actions (move_forward, rotate_left,
+safe distance from the walls. The state space consists of 5 range measurements.
+The action space consists of 3 actions (move_forward, rotate_left,
 rotate_right). Furthermore, both actions and states have additive white
 Gaussian noise. The robot is rewarded +5 for moving forward and -0.5 for
 rotating. If the robot crashes into the wall it is penalized with -200.
@@ -40,7 +40,7 @@ while avoiding the obstacles in the track. Initially, the robot is placed
 randomly into the track but at a safe distance from the obstacles. Both the
 goal and the obstacles change location in every episode. The state-space
 consists of 5 range measurements plus the distance and angle from the goal. The
-action-space consists of 3 actions (move_forward, rotate_left, rotate_right).
+action space consists of 3 actions (move_forward, rotate_left, rotate_right).
 Furthermore, both actions and states have additive white Gaussian noise. The
 robot is rewarded +200 for reaching the goal and -200 for crashing. Moreover,
 after each time step, the robot is rewarded or penalized proportionally to the
@@ -95,7 +95,7 @@ env = gym.make('gym_navigation:NavigationGoal-v0',
 
 Currently, only one track has been implemented in each environment.
 
-Furthermore, some unit tests have been implemented in folder `tests` to verify
+Furthermore, some unit tests have been implemented in the folder `tests` to verify
 the proper functioning of the code.
 
 ## Status
