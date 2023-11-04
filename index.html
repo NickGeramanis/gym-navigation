@@ -28,7 +28,7 @@
     </a>
     <h2>
         The navigation environment is a single-agent domain featuring discrete
-        action-space and continuous state-space. It is a simulation of the
+        action space and continuous state space. It is a simulation of the
         autonomous navigation problem in robotics.
     </h2>
     <h3 id="description">Description</h3>
@@ -37,8 +37,8 @@
     <p>
         The goal of this environment is to navigate a robot on a track without
         crashing into the walls. Initially, the robot is placed randomly into
-        the track but at a safe distance from the walls. The state-space
-        consists of 5 range measurements. The action-space consists of 3
+        the track but at a safe distance from the walls. The state space
+        consists of 5 range measurements. The action space consists of 3
         actions (move_forward, rotate_left, rotate_right). Furthermore, both
         actions and states have additive white Gaussian noise. The robot is
         rewarded +5 for moving forward and -0.5 for rotating. If the robot
@@ -52,7 +52,7 @@
         robot is placed randomly into the track but at a safe distance from the
         obstacles. Both the goal and the obstacles change location in every
         episode. The state-space consists of 5 range measurements plus the
-        distance and angle from the goal. The action-space consists of 3
+        distance and angle from the goal. The action space consists of 3
         actions (move_forward, rotate_left, rotate_right). Furthermore, both
         actions and states have additive white Gaussian noise. The robot is
         rewarded +200 for reaching the goal and -200 for crashing. Moreover,
@@ -63,10 +63,6 @@
     <img alt="NavigationGoal environment" src="images/navigation_goal.png"/>
     <h3 id="gettingStarted">Getting Started</h3>
     <h4>Prerequisites</h4>
-    <p>
-        The package was implemented and tested with Python 3.8 but previous
-        versions can also be used.
-    </p>
     <p>The following libraries need to be installed:</p>
     <ul>
         <li>NumPy</li>
@@ -74,7 +70,7 @@
         <li>Gymnasium</li>
     </ul>
     <h4 id="installation">Installation</h4>
-    <p>Install the package with:</p>
+    <p>Install the package from the repository with the following commands:</p>
     <code>
         git clone https://github.com/NickGeramanis/gym-navigation <br>
         cd gym-navigation <br>
@@ -100,11 +96,11 @@
         # NavigationGoal Environment <br>
         env = gym.make('gym_navigation:NavigationGoal-v0',
                render_mode='human',
-               track_id=2) <br>
+               track_id=1) <br>
     </code>
     <p>Currently, only one track has been implemented in each environment.</p>
     <p>
-        Furthermore, some unit tests have been implemented in folder
+        Furthermore, some unit tests have been implemented in the folder
         <quote>tests</quote>
         to verify the proper functioning of the code.
     </p>
