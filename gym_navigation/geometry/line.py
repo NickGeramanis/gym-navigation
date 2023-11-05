@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import math
-from typing import Any
+from dataclasses import dataclass
 
 from gym_navigation.geometry.point import Point
 
@@ -11,6 +11,7 @@ class NoIntersectionError(Exception):
     """Exception when there is no intersection between two lines."""
 
 
+@dataclass
 class Line:
     """A line (line segment) in Cartesian plane."""
 
@@ -79,11 +80,3 @@ class Line:
                 <= point.y_coordinate
                 <= max(self.start.y_coordinate, self.end.y_coordinate))
         return contains_x and contains_y
-
-    def __eq__(self, other: Any) -> bool:
-        return (isinstance(other, Line)
-                and ((self.start == other.start and self.end == other.end)
-                     or (self.start == other.end and self.end == other.start)))
-
-    def __repr__(self) -> str:
-        return f'[{self.start}, {self.end}]'

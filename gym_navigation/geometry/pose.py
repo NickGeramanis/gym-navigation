@@ -1,10 +1,11 @@
 """This module contains the Pose class."""
 import math
-from typing import Any
+from dataclasses import dataclass
 
 from gym_navigation.geometry.point import Point
 
 
+@dataclass
 class Pose:
     """The pose of an object in Cartesian plane."""
 
@@ -69,14 +70,6 @@ class Pose:
             vector1.x_coordinate * vector2.x_coordinate
             + vector1.y_coordinate * vector2.y_coordinate)
         return angle_difference
-
-    def __eq__(self, other: Any) -> bool:
-        return (isinstance(other, Pose)
-                and self.position == other.position
-                and math.isclose(self.yaw, other.yaw))
-
-    def __repr__(self) -> str:
-        return f'[{self.position}, {self._yaw}]'
 
     @property
     def yaw(self) -> float:
