@@ -11,5 +11,5 @@ setup(name='gym_navigation',
       description='Navigation Environment for OpenAI Gym',
       url='https://github.com/NickGeramanis/gym-navigation',
       license='GPLV3',
-      python_requires='==3.11.5',
-      install_requires=['gymnasium==0.29.1', 'numpy==1.26.1', 'pygame==2.5.2'])
+      python_requires='==3.12.3',
+      install_requires=['gymnasium==0.29.1', 'numpy==2.0.0', 'pygame==2.5.2'])
