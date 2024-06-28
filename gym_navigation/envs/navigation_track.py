@@ -70,8 +70,7 @@ class NavigationTrack(Navigation):
                     continue
 
                 distance = self._pose.position.calculate_distance(intersection)
-                if distance < min_distance:
-                    min_distance = distance
+                min_distance = min(min_distance, distance)
 
             sensor_noise = self.np_random.normal(
                 0, self._SENSOR_STANDARD_DEVIATION)
