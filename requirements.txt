@@ -1,7 +1,7 @@
 gymnasium==0.29.1
-numpy==2.0.0
-pygame==2.5.2
-pytest==8.2.2
-coverage==7.5.3
-pylint==3.2.3
-mypy==1.10.0
+numpy==2.1.0
+pygame==2.6.0
+pytest==8.3.2
+coverage==7.6.1
+pylint==3.2.6
+mypy==1.11.2
