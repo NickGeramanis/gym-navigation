@@ -57,8 +57,8 @@ class NavigationGoal(NavigationTrack):
     def _do_perform_action(self, action: int) -> None:
         super()._do_perform_action(action)
         self._distance_from_goal = (
-                self._DISTANCE_STANDARD_DEVIATION
-                + self._pose.position.calculate_distance(self._goal))
+            self._DISTANCE_STANDARD_DEVIATION
+            + self._pose.position.calculate_distance(self._goal))
 
     def _do_get_observation(self) -> np.ndarray:
         angle_from_goal = (self._ANGLE_STANDARD_DEVIATION
@@ -80,9 +80,9 @@ class NavigationGoal(NavigationTrack):
             reward = self._GOAL_REWARD
         else:
             reward = (
-                    self._TRANSITION_REWARD_FACTOR
-                    * (self._previous_distance_from_goal -
-                       self._distance_from_goal))
+                self._TRANSITION_REWARD_FACTOR
+                * (self._previous_distance_from_goal -
+                   self._distance_from_goal))
 
         self._previous_distance_from_goal = self._distance_from_goal
         return reward

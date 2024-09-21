@@ -32,7 +32,7 @@ class Pose:
                 self.position.x_coordinate += math.sqrt(
                     distance ** 2 / (slope ** 2 + 1))
             self.position.y_coordinate -= (
-                    slope * (starting_x - self.position.x_coordinate))
+                slope * (starting_x - self.position.x_coordinate))
 
     def rotate(self, theta: float) -> None:
         """Rotate the yaw of the object by theta."""

@@ -35,7 +35,7 @@ class Line:
             self.slope = ((start.y_coordinate - end.y_coordinate)
                           / (start.x_coordinate - end.x_coordinate))
             self.y_intercept = (
-                    start.y_coordinate - self.slope * start.x_coordinate)
+                start.y_coordinate - self.slope * start.x_coordinate)
 
     def get_intersection(self, other: Line) -> Point:
         """Get the intersection point between two lines.
@@ -72,11 +72,11 @@ class Line:
     def contains(self, point: Point) -> bool:
         """Calculate if the line contains a given point."""
         contains_x = (
-                min(self.start.x_coordinate, self.end.x_coordinate)
-                <= point.x_coordinate
-                <= max(self.start.x_coordinate, self.end.x_coordinate))
+            min(self.start.x_coordinate, self.end.x_coordinate)
+            <= point.x_coordinate
+            <= max(self.start.x_coordinate, self.end.x_coordinate))
         contains_y = (
-                min(self.start.y_coordinate, self.end.y_coordinate)
-                <= point.y_coordinate
-                <= max(self.start.y_coordinate, self.end.y_coordinate))
+            min(self.start.y_coordinate, self.end.y_coordinate)
+            <= point.y_coordinate
+            <= max(self.start.y_coordinate, self.end.y_coordinate))
         return contains_x and contains_y
