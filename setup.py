@@ -12,4 +12,4 @@ setup(name='gym_navigation',
       url='https://github.com/NickGeramanis/gym-navigation',
       license='GPLV3',
       python_requires='==3.12.6',
-      install_requires=['gymnasium==0.29.1', 'numpy==2.1.1', 'pygame==2.6.0'])
+      install_requires=['gymnasium==1.0.0', 'numpy==2.1.2', 'pygame==2.6.1'])
